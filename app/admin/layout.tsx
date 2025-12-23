@@ -15,7 +15,9 @@ export default async function AdminLayout({
     const token = (await cookies()).get('token')?.value;
     const payload = await verifyToken(token || '');
 
-    if (!payload || payload.role !== 'admin') {
+    const hasAccess = payload && (payload.role === 'admin' || payload.role === 'super_admin');
+
+    if (!hasAccess) {
         redirect('/login');
     }
 

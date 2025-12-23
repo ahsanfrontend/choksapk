@@ -74,10 +74,25 @@ body {
 
 @layer components {
   .btn-primary {
-    @apply px-4 py-2 bg-primary hover:opacity-90 text-primary-foreground font-bold rounded transition-all;
+    @apply px-4 py-2 bg-primary hover:opacity-90 text-primary-foreground font-bold rounded transition-all cursor-pointer;
   }
 
   .card {
     @apply bg-card text-card-foreground border border-border rounded-xl overflow-hidden shadow-sm transition-all hover:shadow-md;
+  }
+}
+
+@layer base {
+
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  select {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
   }
 }

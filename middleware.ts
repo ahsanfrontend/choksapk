@@ -53,11 +53,13 @@ export async function middleware(request: NextRequest) {
 
     // 3. Handle API Security
     if (pathname.startsWith('/api')) {
-        // Allow public authentication routes
-        const isPublicAuth = pathname === '/api/auth/login' ||
-            pathname === '/api/auth/logout';
+        // Allow public authentication and redirect resolution routes
+        const isPublicRoute =
+            pathname === '/api/auth/login' ||
+            pathname === '/api/auth/logout' ||
+            pathname === '/api/redirects/resolve';
 
-        if (isPublicAuth) {
+        if (isPublicRoute) {
             return NextResponse.next();
         }
 
@@ -86,5 +88,14 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/api/:path*', '/register'],
+    matcher: [
+        /*
+         * Match all request paths except for the ones starting with:
+         * - api/auth (public auth endpoints)
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon.ico (favicon file)
+         */
+        '/((?!api/auth|_next/static|_next/image|favicon.ico).*)',
+    ],
 }
