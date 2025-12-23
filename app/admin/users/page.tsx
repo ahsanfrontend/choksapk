@@ -62,6 +62,25 @@ export default function UsersManagementPage() {
         }
     };
 
+    const handleDeleteUser = async (id: string, name: string) => {
+        if (!confirm(`Are you sure you want to terminate access for "${name}"?`)) return;
+
+        try {
+            const res = await fetch(`/api/users/${id}`, {
+                method: 'DELETE',
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                fetchMeAndUsers();
+            } else {
+                alert(data.error || 'Deletion failed');
+            }
+        } catch (err) {
+            alert('Transmission error during deletion.');
+        }
+    };
+
     if (loading) {
         return (
             <div className="h-full flex flex-col items-center justify-center space-y-4">
@@ -118,7 +137,10 @@ export default function UsersManagementPage() {
                                 <button className="w-10 h-10 rounded-xl bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:text-primary transition-all">
                                     <UserCog size={16} />
                                 </button>
-                                <button className="w-10 h-10 rounded-xl bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:text-destructive transition-all">
+                                <button
+                                    onClick={() => handleDeleteUser(user._id, user.name)}
+                                    className="w-10 h-10 rounded-xl bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:text-destructive transition-all"
+                                >
                                     <Trash2 size={16} />
                                 </button>
                             </div>
