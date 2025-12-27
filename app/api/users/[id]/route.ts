@@ -64,8 +64,19 @@ export async function PATCH(
         if (!userToUpdate) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
         // Hierarchy Check
-        if (admin.role === 'admin' && userToUpdate.role !== 'user') {
+        const isSelf = admin.userId === id;
+        if (admin.role === 'admin' && !isSelf && userToUpdate.role !== 'user') {
             return NextResponse.json({ error: 'Admins can only modify limited users' }, { status: 403 });
+        }
+
+        // If updating password, hash it
+        if (body.password) {
+            // Keep password length check if desired, e.g. < 6 chars
+            if (body.password.length < 6) {
+                return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
+            }
+            const bcrypt = (await import('bcryptjs')).default;
+            body.password = await bcrypt.hash(body.password, 10);
         }
 
         // Apply updates

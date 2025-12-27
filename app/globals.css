@@ -72,6 +72,12 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
+.container {
+  max-width: 1200px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 @layer components {
   .btn-primary {
     @apply px-4 py-2 bg-primary hover:opacity-90 text-primary-foreground font-bold rounded transition-all cursor-pointer;
@@ -95,4 +101,103 @@ body {
   button:disabled {
     cursor: not-allowed;
   }
+}
+
+/* Rich Text Content Styles */
+.description-content {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.description-content h1 {
+  font-size: clamp(22px, 4vw, 28px) !important;
+  margin-bottom: 1.5rem !important;
+  margin-top: 2.5rem !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  color: var(--foreground) !important;
+  line-height: 1.2 !important;
+}
+
+.description-content h2 {
+  font-size: clamp(20px, 3.5vw, 24px) !important;
+  margin-bottom: 1.25rem !important;
+  margin-top: 2rem !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  color: var(--foreground) !important;
+  line-height: 1.3 !important;
+}
+
+.description-content h3 {
+  font-size: clamp(18px, 3vw, 20px) !important;
+  margin-bottom: 1rem !important;
+  margin-top: 1.5rem !important;
+  font-weight: 800 !important;
+  color: var(--foreground) !important;
+  line-height: 1.4 !important;
+}
+
+.description-content p {
+  font-size: clamp(14px, 2vw, 16px) !important;
+  line-height: 1.7 !important;
+  margin-bottom: 1.25rem !important;
+  color: var(--muted-foreground) !important;
+  max-width: 100%;
+}
+
+.description-content ul,
+.description-content ol {
+  margin-bottom: 1.25rem !important;
+  padding-left: clamp(1rem, 3vw, 1.5rem) !important;
+  max-width: 100%;
+}
+
+.description-content li {
+  font-size: clamp(14px, 2vw, 16px) !important;
+  margin-bottom: 0.5rem !important;
+  color: var(--muted-foreground) !important;
+  line-height: 1.6 !important;
+}
+
+.description-content strong {
+  color: var(--primary) !important;
+  font-weight: 700 !important;
+}
+
+.description-content a {
+  color: var(--primary) !important;
+  text-decoration: underline;
+  word-break: break-word;
+}
+
+.description-content code {
+  background: var(--muted);
+  padding: 0.2em 0.4em;
+  border-radius: 0.25rem;
+  font-size: 0.9em;
+  word-break: break-all;
+}
+
+.description-content pre {
+  background: var(--muted);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: 1.25rem;
+}
+
+.description-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
+.description-content blockquote {
+  border-left: 4px solid var(--primary);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: var(--muted-foreground);
 }

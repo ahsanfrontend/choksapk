@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LayoutDashboard, Gamepad2, FileText, Settings, Users, Search, Bell, HelpCircle, Store, LogOut, ExternalLink, ChevronDown, Activity } from 'lucide-react';
+import { LayoutDashboard, Gamepad2, FileText, Settings, Users, Search, Bell, HelpCircle, Store, LogOut, ExternalLink, ChevronDown, Activity, Download } from 'lucide-react';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import { redirect } from 'next/navigation';
@@ -73,10 +73,10 @@ export default async function AdminLayout({
                         <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 mt-2">Main</p>
                         <NavLink href="/admin/dashboard" icon={<LayoutDashboard size={18} />} label="Command Center" />
                         <NavLink href="/admin/games" icon={<Gamepad2 size={18} />} label="Games" />
-                        <NavLink href="/admin/blogs" icon={<FileText size={18} />} label="Blog Posts" />
+                        <NavLink href="/admin/scraper" icon={<Download size={18} />} label="Scraper" />
 
                         <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 mt-6">Management</p>
-                        <NavLink href="/admin/seo" icon={<Search size={18} />} label="SEO & Metadata" />
+                        <NavLink href="/admin/seo" icon={<Search size={18} />} label="SEO Matrix" />
                         <NavLink href="/admin/users" icon={<Users size={18} />} label="User Control Protocol" />
 
                         <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 mt-6">Settings</p>

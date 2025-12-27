@@ -1,6 +1,10 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
+import 'react-quill-new/dist/quill.snow.css';
+
+const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function BlogForm({ initialData }: { initialData?: any }) {
@@ -104,9 +108,58 @@ export default function BlogForm({ initialData }: { initialData?: any }) {
                 )}
             </div>
 
-            <div className="space-y-3 relative z-10">
-                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Article Manuscript (Markdown)</label>
-                <textarea name="content" value={formData.content} onChange={handleChange} className="w-full bg-muted/30 border border-border rounded-3xl px-8 py-6 text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-mono text-sm h-96 resize-none leading-relaxed" required placeholder="Compose your story here..." />
+            <div className="space-y-4 relative z-10">
+                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Article Manuscript (Rich Text)</label>
+                <div className="bg-muted/30 border border-border rounded-3xl overflow-hidden min-h-[400px]">
+                    <ReactQuill
+                        theme="snow"
+                        value={formData.content}
+                        onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
+                        modules={{
+                            toolbar: [
+                                [{ 'header': [1, 2, 3, false] }],
+                                ['bold', 'italic', 'underline', 'strike'],
+                                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                                ['link', 'image', 'clean']
+                            ],
+                        }}
+                        className="h-full border-none"
+                    />
+                </div>
+                <style jsx global>{`
+                    .ql-toolbar.ql-snow {
+                        border: none !important;
+                        border-bottom: 1px solid var(--border) !important;
+                        background: rgba(var(--muted), 0.2);
+                        padding: 1rem !important;
+                    }
+                    .ql-container.ql-snow {
+                        border: none !important;
+                        font-family: inherit !important;
+                        font-size: 0.875rem !important;
+                        color: var(--foreground);
+                    }
+                    .ql-editor {
+                        min-height: 350px;
+                        padding: 2rem !important;
+                        color: var(--foreground);
+                        line-height: 1.6;
+                    }
+                    .ql-editor.ql-blank::before {
+                        color: var(--muted-foreground) !important;
+                        font-style: normal !important;
+                        opacity: 0.5;
+                    }
+                    .ql-snow .ql-stroke {
+                        stroke: var(--muted-foreground);
+                    }
+                    .ql-snow .ql-fill {
+                        fill: var(--muted-foreground);
+                    }
+                    .ql-snow .ql-picker {
+                        color: var(--muted-foreground);
+                    }
+                `}</style>
             </div>
 
             <div className="space-y-3 relative z-10">

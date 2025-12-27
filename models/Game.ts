@@ -4,7 +4,7 @@ export interface IGame extends Document {
     title: string;
     slug: string;
     provider: string;
-    category: 'slots' | 'table' | 'live';
+    category: 'slots' | 'table' | 'live' | 'general';
     thumbnail: string;
     description?: string;
     downloadUrl?: string; // Standardized from demoUrl
@@ -25,7 +25,7 @@ const GameSchema: Schema<IGame> = new Schema(
         title: { type: String, required: true },
         slug: { type: String, required: true, unique: true },
         provider: { type: String, required: true },
-        category: { type: String, enum: ['slots', 'table', 'live'], required: true },
+        category: { type: String, enum: ['slots', 'table', 'live', 'general'], required: true },
         thumbnail: { type: String, required: true },
         description: { type: String },
         downloadUrl: { type: String },

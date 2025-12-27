@@ -27,8 +27,10 @@ export default function LoginPage() {
             }
 
             if (data.user.role === 'admin') {
+                localStorage.setItem('adminToken', data.token); // Save token for client-side API calls
                 router.push('/admin/dashboard');
             } else {
+                localStorage.setItem('token', data.token); // Save regular token
                 router.push('/');
             }
         } catch (err: any) {

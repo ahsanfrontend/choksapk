@@ -97,6 +97,33 @@ export default function GamesDashboard({ initialGames }: { initialGames: Game[] 
         }
     };
 
+    const handleBulkSEO = async () => {
+        if (!confirm(`Are you sure you want to generate SEO Matrix for ${selectedIds.length} games?\n\nThis will use your AI credits.`)) return;
+        setLoading('bulk');
+        try {
+            const res = await fetch('/api/seo/bulk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids: selectedIds })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                const successCount = data.results.filter((r: any) => r.status === 'success').length;
+                alert(`✅ Bulk SEO Complete!\n\nSuccessfully processed: ${successCount}/${selectedIds.length} games.\n\nCheck the SEO Matrix page to view the new routes.`);
+                setSelectedIds([]);
+            } else {
+                alert(`Failed to start bulk processing: ${data.error}`);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error during bulk SEO processing');
+        } finally {
+            setLoading(null);
+        }
+    };
+
     return (
         <div className="space-y-6">
             {/* Bulk Actions Bar */}
@@ -128,6 +155,13 @@ export default function GamesDashboard({ initialGames }: { initialGames: Game[] 
                             disabled={!!loading}
                         >
                             <Trash size={14} /> Delete
+                        </button>
+                        <button
+                            onClick={handleBulkSEO}
+                            className="p-3 bg-blue-500/10 text-blue-600 hover:bg-blue-500 hover:text-white rounded-2xl transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest border border-blue-500/20"
+                            disabled={!!loading}
+                        >
+                            <span className="text-lg">✨</span> Matrix SEO
                         </button>
                     </div>
                 </div>

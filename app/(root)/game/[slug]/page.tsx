@@ -89,7 +89,6 @@ export default async function GamePage({ params }: { params: Promise<{ slug: str
                                 <h1 className="text-xl sm:text-3xl md:text-5xl font-black text-foreground uppercase tracking-tighter leading-tight mb-2 md:mb-3 italic line-clamp-2 md:line-clamp-none">{game.title}</h1>
                                 <div className="flex flex-wrap items-center gap-2 md:gap-3">
                                     <span className="px-3 py-1 md:px-4 md:py-1.5 bg-primary/10 text-primary text-[7px] md:text-[10px] font-black rounded-full uppercase tracking-widest border border-primary/20">{game.provider}</span>
-                                    <span className="text-muted-foreground text-[7px] md:text-[10px] font-black uppercase tracking-[0.2em]">• {game.category} Inventory</span>
                                 </div>
                             </div>
                         </div>
@@ -116,77 +115,8 @@ export default async function GamePage({ params }: { params: Promise<{ slug: str
 
             <div className="container mx-auto px-4 pb-24">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                    {/* Main Section */}
-                    <div className="lg:col-span-8 space-y-10">
-                        {/* Tech Specs */}
-                        <div className="bg-card p-6 md:p-10 lg:p-14 rounded-3xl md:rounded-[3rem] border border-border shadow-xl relative overflow-hidden">
-                            <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mb-32"></div>
-                            <h2 className="text-lg md:text-2xl font-black text-foreground mb-6 md:mb-8 uppercase tracking-tighter italic flex items-center gap-3 relative z-10">
-                                <span className="w-6 md:w-8 h-1 md:h-1.5 bg-primary rounded-full"></span> Technical Specification
-                            </h2>
-                            <div className="prose prose-invert max-w-none relative z-10">
-                                <div
-                                    className="text-muted-foreground leading-relaxed font-medium text-[14px] md:text-lg whitespace-pre-wrap"
-                                    dangerouslySetInnerHTML={{ __html: game.description || '' }}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Related Apps Section */}
-                        <div className="bg-card p-6 md:p-10 lg:p-14 rounded-3xl md:rounded-[3rem] border border-border shadow-xl relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mt-32"></div>
-                            <div className="flex justify-between items-end mb-6 md:mb-8 relative z-10">
-                                <div>
-                                    <h2 className="text-lg md:text-2xl font-black text-foreground uppercase tracking-tighter italic flex items-center gap-2 md:gap-3">
-                                        <span className="w-6 md:w-8 h-1 md:h-1.5 bg-primary rounded-full"></span> Related Apps
-                                    </h2>
-                                </div>
-                                <Link href={`/games/${game.category}`} className="text-[7px] md:text-[10px] font-black text-primary hover:underline uppercase tracking-[0.2em]">View Gallery</Link>
-                            </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6 relative z-10">
-                                {relatedGames.map((rel: any) => (
-                                    <Link key={rel._id} href={`/game/${rel.slug}`} className="group bg-muted/30 p-3 md:p-4 rounded-2xl md:rounded-[2.5rem] border border-border hover:border-primary transition-all shadow-sm hover:shadow-2xl">
-                                        <div className="aspect-square rounded-xl md:rounded-[2rem] overflow-hidden mb-3 md:mb-4 bg-muted border border-border">
-                                            <img src={rel.thumbnail} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                        </div>
-                                        <h4 className="text-[10px] md:text-xs font-black text-foreground uppercase truncate px-1 md:px-2">{rel.title}</h4>
-                                        <p className="text-[6px] md:text-[8px] text-muted-foreground uppercase font-black tracking-widest px-1 md:px-2 mt-1">{rel.provider}</p>
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Leave a Reply Section */}
-                        <div className="bg-card p-6 md:p-10 lg:p-14 rounded-3xl md:rounded-[3rem] border border-border shadow-xl">
-                            <h2 className="text-lg md:text-2xl font-black text-foreground mb-3 md:mb-4 uppercase tracking-tighter italic flex items-center gap-3">
-                                <span className="w-6 md:w-8 h-1 md:h-1.5 bg-primary rounded-full"></span> Leave a Reply
-                            </h2>
-                            <p className="text-muted-foreground text-[10px] md:text-sm font-medium mb-6 md:mb-10">Your email address will not be published. Required fields are marked *</p>
-
-                            <form className="space-y-6 md:space-y-8">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                                    <div className="space-y-2">
-                                        <label className="block text-[8px] md:text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Name *</label>
-                                        <input type="text" className="w-full bg-muted/30 border border-border rounded-xl md:rounded-2xl px-4 py-3 md:px-6 md:py-4 text-xs md:text-sm text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold" required placeholder="User Anonymous" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="block text-[8px] md:text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Email *</label>
-                                        <input type="email" className="w-full bg-muted/30 border border-border rounded-xl md:rounded-2xl px-4 py-3 md:px-6 md:py-4 text-xs md:text-sm text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold" required placeholder="user@vault.network" />
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="block text-[8px] md:text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Comment *</label>
-                                    <textarea className="w-full bg-muted/30 border border-border rounded-xl md:rounded-2xl px-4 py-3 md:px-6 md:py-4 text-xs md:text-sm text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-medium h-32 md:h-40 resize-none" required placeholder="Transmit your feedback protocol..." />
-                                </div>
-                                <button type="submit" className="w-full md:w-auto px-8 md:px-12 py-4 md:py-5 bg-primary hover:opacity-95 active:scale-95 text-primary-foreground font-black rounded-xl md:rounded-2xl transition-all shadow-xl shadow-primary/30 uppercase tracking-widest text-[10px] md:text-xs">
-                                    Post Comment
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-
-                    {/* Sidebar Actions */}
-                    <div className="lg:col-span-4 space-y-8">
+                    {/* Sidebar Actions - TOP on Mobile, RIGHT on Desktop */}
+                    <div className="lg:col-span-4 space-y-8 order-1 lg:order-2">
                         <div className="bg-card rounded-[2.5rem] border border-border sticky top-28 shadow-2xl ring-1 ring-primary/5 overflow-hidden">
                             {/* Integrated Thumbnail */}
                             <div className="w-full aspect-[16/10] bg-muted relative overflow-hidden group">
@@ -252,6 +182,48 @@ export default async function GamePage({ params }: { params: Promise<{ slug: str
                             </div>
                         </div>
                     </div>
+
+                    {/* Main Section - BELOW actions on mobile, LEFT on desktop */}
+                    <div className="lg:col-span-8 space-y-10 order-2 lg:order-1">
+                        {/* Tech Specs - 2nd on mobile, 1st on desktop */}
+                        <div className="bg-card p-6 md:p-10 lg:p-14 rounded-3xl md:rounded-[3rem] border border-border shadow-xl relative overflow-hidden">
+                            <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mb-32"></div>
+                            <h2 className="text-lg md:text-2xl font-black text-foreground mb-6 md:mb-8 uppercase tracking-tighter italic flex items-center gap-3 relative z-10">
+                                <span className="w-6 md:w-8 h-1 md:h-1.5 bg-primary rounded-full"></span> Technical Specification
+                            </h2>
+                            <div className="prose prose-invert max-w-none relative z-10 prose-p:text-muted-foreground prose-headings:text-foreground prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-primary">
+                                <div
+                                    className="description-content"
+                                    dangerouslySetInnerHTML={{ __html: game.description || '' }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Related Apps Section - LAST on mobile and desktop main column */}
+                        <div className="bg-card p-6 md:p-10 lg:p-14 rounded-3xl md:rounded-[3rem] border border-border shadow-xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mt-32"></div>
+                            <div className="flex justify-between items-end mb-6 md:mb-8 relative z-10">
+                                <div>
+                                    <h2 className="text-lg md:text-2xl font-black text-foreground uppercase tracking-tighter italic flex items-center gap-2 md:gap-3">
+                                        <span className="w-6 md:w-8 h-1 md:h-1.5 bg-primary rounded-full"></span> Related Apps
+                                    </h2>
+                                </div>
+                                <Link href="/games" className="text-[7px] md:text-[10px] font-black text-primary hover:underline uppercase tracking-[0.2em]">View All Assets</Link>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6 relative z-10">
+                                {relatedGames.map((rel: any) => (
+                                    <Link key={rel._id} href={`/game/${rel.slug}`} className="group bg-muted/30 p-3 md:p-4 rounded-2xl md:rounded-[2.5rem] border border-border hover:border-primary transition-all shadow-sm hover:shadow-2xl">
+                                        <div className="aspect-square rounded-xl md:rounded-[2rem] overflow-hidden mb-3 md:mb-4 bg-muted border border-border">
+                                            <img src={rel.thumbnail} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                        </div>
+                                        <h4 className="text-[10px] md:text-xs font-black text-foreground uppercase truncate px-1 md:px-2">{rel.title}</h4>
+                                        <p className="text-[6px] md:text-[8px] text-muted-foreground uppercase font-black tracking-widest px-1 md:px-2 mt-1">{rel.provider}</p>
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

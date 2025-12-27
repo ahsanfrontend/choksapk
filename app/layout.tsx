@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'choksapk',
-  description: 'Built with Next.js and MongoDB',
+  description: 'Certified Asset Protection & Distribution Protocol',
 };
 
 export default function RootLayout({

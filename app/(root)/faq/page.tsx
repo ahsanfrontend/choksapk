@@ -27,10 +27,7 @@ export default function FAQPage() {
             q: "Is registration required?",
             a: "While you can browse the inventory freely, registered users get access to advanced management tools and real-time update notifications."
         },
-        {
-            q: "How can I report an issue?",
-            a: "If you detect any protocol anomalies or broken links, please use our contact form or report feature available on each asset page."
-        }
+
     ];
 
     return (
@@ -63,13 +60,7 @@ export default function FAQPage() {
                     ))}
                 </div>
 
-                <div className="mt-20 text-center bg-muted/30 p-10 rounded-[3rem] border border-border">
-                    <h4 className="text-lg font-black text-foreground uppercase tracking-widest mb-4 italic">Still Have Questions?</h4>
-                    <p className="text-muted-foreground text-sm mb-8 font-medium">Our technical support squad is standing by 24/7 to assist with your deployment.</p>
-                    <button className="px-10 py-4 bg-primary text-primary-foreground font-black rounded-2xl hover:opacity-90 transition-all uppercase tracking-widest text-xs shadow-xl shadow-primary/30">
-                        Signal for Support
-                    </button>
-                </div>
+
             </div>
         </div>
     );

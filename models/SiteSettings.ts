@@ -10,6 +10,8 @@ export interface ISiteSettings extends Document {
         instagram?: string;
     };
     homeBanners: string[];
+    openaiKey?: string;
+    geminiKey?: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -25,6 +27,8 @@ const SiteSettingsSchema: Schema<ISiteSettings> = new Schema(
             instagram: String,
         },
         homeBanners: [{ type: String }],
+        openaiKey: { type: String },
+        geminiKey: { type: String },
     },
     { timestamps: true }
 );

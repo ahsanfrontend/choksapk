@@ -60,6 +60,64 @@ export default function GameForm({ initialData }: { initialData?: any }) {
         }
     };
 
+    const handleAIOptimize = async (mode: 'humanize' | 'seo' | 'matrix') => {
+        if (!formData.description && mode !== 'matrix') {
+            alert('Please enter some text in the description first.');
+            return;
+        }
+
+        if (mode === 'matrix' && !formData.title) {
+            alert('Identity Title is required for SEO Matrix.');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            // Predict slug if not editing existing game
+            let currentSlug = formData.slug;
+            if (!currentSlug && formData.title) {
+                currentSlug = formData.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+            }
+
+            const endpoint = mode === 'matrix' ? '/api/seo/generate' : '/api/ai/optimize';
+            const body = mode === 'matrix'
+                ? { title: formData.title, description: formData.description, slug: currentSlug }
+                : { text: formData.description, mode };
+
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            const data = await res.json();
+
+            if (mode === 'matrix') {
+                if (data.savedRoute) {
+                    alert(`✅ SEO Matrix Route Created!\n\nTarget Route: ${data.savedRoute.route}\nSEO Title: ${data.savedRoute.title}\nSEO Keywords: ${data.savedRoute.keywords || 'N/A'}`);
+                } else if (data.optimizedData) {
+                    alert('SEO Data Generated (Route NOT saved - slug missing):\n' + JSON.stringify(data.optimizedData, null, 2));
+                }
+            } else {
+                if (data.optimizedDescription || data.optimizedText) {
+                    setFormData(prev => ({
+                        ...prev,
+                        description: data.optimizedDescription || data.optimizedText
+                    }));
+                }
+            }
+
+            if (data.error) {
+                alert(`AI Error: ${data.error}`);
+            }
+        } catch (err) {
+            console.error('AI Optimization failed', err);
+            alert('AI processing failed. Check connection.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -105,9 +163,7 @@ export default function GameForm({ initialData }: { initialData?: any }) {
                     <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Inventory Class</label>
                     <div className="relative">
                         <select name="category" value={formData.category} onChange={handleChange} className="w-full bg-muted/30 border border-border rounded-2xl px-6 py-4 text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-black uppercase tracking-widest appearance-none cursor-pointer">
-                            <option value="slots">Slots</option>
-                            <option value="table">Table Games</option>
-                            <option value="live">Live Games</option>
+                            <option value="general">General Asset</option>
                         </select>
                         <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7"></path></svg>
@@ -167,7 +223,35 @@ export default function GameForm({ initialData }: { initialData?: any }) {
             </div>
 
             <div className="space-y-4 relative z-10">
-                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Technical Specification (Rich Text)</label>
+                <div className="flex items-center justify-between ml-1">
+                    <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Technical Specification (Rich Text)</label>
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            disabled={loading}
+                            onClick={() => handleAIOptimize('humanize')}
+                            className="text-[8px] font-black uppercase tracking-widest bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-lg hover:bg-primary hover:text-primary-foreground transition-all flex items-center gap-2 disabled:opacity-50"
+                        >
+                            {loading ? 'Processing...' : 'Humanize AI'}
+                        </button>
+                        <button
+                            type="button"
+                            disabled={loading}
+                            onClick={() => handleAIOptimize('seo')}
+                            className="text-[8px] font-black uppercase tracking-widest bg-blue-500/10 text-blue-500 border border-blue-500/20 px-3 py-1.5 rounded-lg hover:bg-blue-500 hover:text-white transition-all flex items-center gap-2 disabled:opacity-50"
+                        >
+                            {loading ? 'Optimizing...' : 'SEO Optimize'}
+                        </button>
+                        <button
+                            type="button"
+                            disabled={loading}
+                            onClick={() => handleAIOptimize('matrix')}
+                            className="text-[8px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-3 py-1.5 rounded-lg hover:bg-emerald-500 hover:text-white transition-all flex items-center gap-2 disabled:opacity-50"
+                        >
+                            {loading ? 'Generating...' : 'SEO Matrix AI'}
+                        </button>
+                    </div>
+                </div>
                 <div className="bg-muted/30 border border-border rounded-2xl overflow-hidden min-h-[300px] prose prose-invert max-w-none">
                     <ReactQuill
                         theme="snow"

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Save, UserPlus, Trash2, Globe, Shield, Image as ImageIcon, Link as LinkIcon } from 'lucide-react';
+import { Save, UserPlus, Trash2, Globe, Shield, Image as ImageIcon, Link as LinkIcon, Activity, Lock, Key, X, Check } from 'lucide-react';
 
 export default function SettingsPage() {
     const [settings, setSettings] = useState<any>({
@@ -12,10 +12,22 @@ export default function SettingsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [activeTab, setActiveTab] = useState('general');
+    const [currentUser, setCurrentUser] = useState<any>(null);
 
     useEffect(() => {
         fetchSettings();
+        fetchCurrentUser();
     }, []);
+
+    const fetchCurrentUser = async () => {
+        try {
+            const res = await fetch('/api/auth/me');
+            const data = await res.json();
+            if (data.user) setCurrentUser(data.user);
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     const fetchSettings = async () => {
         try {
@@ -69,6 +81,8 @@ export default function SettingsPage() {
                 {[
                     { id: 'general', label: 'Core', icon: <Globe size={16} /> },
                     { id: 'social', label: 'Social', icon: <LinkIcon size={16} /> },
+                    { id: 'ai', label: 'Intelligence', icon: <Activity size={16} /> },
+                    { id: 'security', label: 'Security', icon: <Lock size={16} /> },
                     { id: 'users', label: 'Access', icon: <Shield size={16} /> },
                 ].map(tab => (
                     <button
@@ -159,6 +173,61 @@ export default function SettingsPage() {
                     </div>
                 )}
 
+                {activeTab === 'ai' && (
+                    <div className="space-y-10 relative z-10">
+                        <div className="space-y-3">
+                            <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                                <Activity size={14} className="text-primary" /> OpenAI Repository Key
+                            </label>
+                            <input
+                                type="password"
+                                value={settings.openaiKey || ''}
+                                onChange={(e) => setSettings({ ...settings, openaiKey: e.target.value })}
+                                className="w-full bg-muted/30 border border-border rounded-2xl px-6 py-4 text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-mono text-sm"
+                                placeholder="sk-proj-..."
+                            />
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                                <Activity size={14} className="text-emerald-500" /> Google Gemini API Key
+                            </label>
+                            <input
+                                type="password"
+                                value={settings.geminiKey || ''}
+                                onChange={(e) => setSettings({ ...settings, geminiKey: e.target.value })}
+                                className="w-full bg-muted/30 border border-border rounded-2xl px-6 py-4 text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-mono text-sm"
+                                placeholder="AIzaSy..."
+                            />
+                            <p className="text-[9px] text-muted-foreground font-medium ml-2 uppercase tracking-widest leading-relaxed">
+                                This key powers the autonomous humanization and SEO rearrangement protocols using Google's Gemini AI.
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === 'security' && (
+                    <div className="space-y-10 relative z-10 w-full max-w-2xl">
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-3 pb-4 border-b border-border">
+                                <div className="p-3 bg-primary/10 rounded-full text-primary">
+                                    <Lock size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-black text-foreground uppercase tracking-widest">Admin Credentials</h3>
+                                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Update your personal access key.</p>
+                                </div>
+                            </div>
+
+                            {currentUser ? (
+                                <ChangePasswordForm userId={currentUser._id} />
+                            ) : (
+                                <div className="text-sm text-red-500 font-bold">Unable to identify current user.</div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 {activeTab === 'users' && <UserManagementSection />}
             </div>
         </div>
@@ -168,6 +237,8 @@ export default function SettingsPage() {
 function UserManagementSection() {
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [editingPasswordId, setEditingPasswordId] = useState<string | null>(null);
+    const [newPassword, setNewPassword] = useState('');
 
     useEffect(() => {
         fetchUsers();
@@ -182,6 +253,31 @@ function UserManagementSection() {
             console.error(err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handlePasswordUpdate = async (userId: string) => {
+        if (!newPassword || newPassword.length < 6) {
+            alert('Password must be at least 6 characters');
+            return;
+        }
+        try {
+            const res = await fetch(`/api/users/${userId}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ password: newPassword }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (res.ok) {
+                alert('Password updated successfully');
+                setEditingPasswordId(null);
+                setNewPassword('');
+            } else {
+                const err = await res.json();
+                alert(err.error || 'Failed to update');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Error updating password');
         }
     };
 
@@ -225,9 +321,36 @@ function UserManagementSection() {
                                     </span>
                                 </td>
                                 <td className="px-6 py-6 text-right">
-                                    <button className="p-3 text-muted-foreground hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all">
-                                        <Trash2 size={18} />
-                                    </button>
+                                    <div className="flex justify-end gap-2">
+                                        {editingPasswordId === user._id ? (
+                                            <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-4 duration-300">
+                                                <input
+                                                    type="text"
+                                                    value={newPassword}
+                                                    onChange={e => setNewPassword(e.target.value)}
+                                                    placeholder="New Pass..."
+                                                    className="w-32 bg-background border border-border rounded-lg px-3 py-2 text-xs font-medium focus:ring-2 focus:ring-primary"
+                                                />
+                                                <button onClick={() => handlePasswordUpdate(user._id)} className="p-2 text-emerald-500 hover:bg-emerald-500/10 rounded-lg">
+                                                    <Check size={16} />
+                                                </button>
+                                                <button onClick={() => { setEditingPasswordId(null); setNewPassword(''); }} className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg">
+                                                    <X size={16} />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => { setEditingPasswordId(user._id); setNewPassword(''); }}
+                                                className="p-3 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+                                                title="Reset Password"
+                                            >
+                                                <Key size={18} />
+                                            </button>
+                                        )}
+                                        <button className="p-3 text-muted-foreground hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all">
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))}
@@ -242,6 +365,76 @@ function UserManagementSection() {
             <div className="flex items-center gap-2 text-[9px] text-muted-foreground font-bold uppercase tracking-widest bg-muted/50 p-4 rounded-xl border border-border">
                 <Shield size={12} className="text-primary" />
                 Personnel actions are subject to high-level surveillance. All modifications are logged in the secure audit trail.
+            </div>
+        </div>
+    );
+}
+
+function ChangePasswordForm({ userId }: { userId: string }) {
+    const [password, setPassword] = useState('');
+    const [confirm, setConfirm] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async () => {
+        if (!password || password !== confirm) {
+            alert("Passwords don't match or are empty");
+            return;
+        }
+        if (password.length < 6) {
+            alert("Password too short");
+            return;
+        }
+        setLoading(true);
+        try {
+            const res = await fetch(`/api/users/${userId}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ password }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (res.ok) {
+                alert('Password updated successfully');
+                setPassword('');
+                setConfirm('');
+            } else {
+                alert('Failed to update password');
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">New Password</label>
+                <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full bg-muted/30 border border-border rounded-2xl px-6 py-4 text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold"
+                    placeholder="••••••••"
+                />
+            </div>
+            <div className="space-y-3">
+                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Confirm Password</label>
+                <input
+                    type="password"
+                    value={confirm}
+                    onChange={(e) => setConfirm(e.target.value)}
+                    className="w-full bg-muted/30 border border-border rounded-2xl px-6 py-4 text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold"
+                    placeholder="••••••••"
+                />
+            </div>
+            <div className="md:col-span-2 pt-4">
+                <button
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className="flex items-center justify-center gap-3 px-8 py-3 bg-primary hover:opacity-90 active:scale-95 text-primary-foreground font-black text-[10px] uppercase tracking-widest rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-primary/20"
+                >
+                    {loading ? 'Updating...' : <><Save size={14} /> Update Credentials</>}
+                </button>
             </div>
         </div>
     );

@@ -55,9 +55,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 )}
 
                 <div className="max-w-3xl mx-auto">
-                    <div className="text-foreground text-lg md:text-xl leading-relaxed font-medium whitespace-pre-wrap selection:bg-primary selection:text-primary-foreground first-letter:text-5xl first-letter:font-black first-letter:mr-3 first-letter:float-left first-letter:text-primary">
-                        {post.content}
-                    </div>
+                    <div
+                        className="description-content text-foreground leading-relaxed font-normal prose prose-invert max-w-none selection:bg-primary selection:text-primary-foreground"
+                        dangerouslySetInnerHTML={{ __html: post.content || '' }}
+                    />
                 </div>
 
                 <div className="mt-24 pt-12 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-8">
