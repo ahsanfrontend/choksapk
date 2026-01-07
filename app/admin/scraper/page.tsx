@@ -10,6 +10,7 @@ export default function ScraperPage() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<any>(null);
     const [progress, setProgress] = useState({ current: 0, total: 0 });
+    const [useAiBranding, setUseAiBranding] = useState(true);
 
     const handleScrape = async () => {
         const urlList = urls.split('\n').map(u => u.trim()).filter(u => u);
@@ -39,7 +40,7 @@ export default function ScraperPage() {
                 const res = await fetch('/api/scraper', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url, selector, mode })
+                    body: JSON.stringify({ url, selector, mode, useAiBranding })
                 });
 
                 const data = await res.json();
@@ -142,11 +143,27 @@ export default function ScraperPage() {
                                     Multiple Games
                                 </button>
                             </div>
-                            <p className="text-[9px] text-muted-foreground font-medium ml-2 mt-2 uppercase tracking-widest leading-relaxed">
-                                {mode === 'single'
-                                    ? 'Extract data from a single game detail page'
-                                    : 'Extract multiple games from a listing page'}
-                            </p>
+                        </div>
+
+                        <div className="p-6 bg-primary/5 border border-primary/20 rounded-2xl flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-primary/10 rounded-xl text-primary">
+                                    <Globe size={20} />
+                                </div>
+                                <div>
+                                    <h4 className="text-xs font-black text-foreground uppercase tracking-widest">AI Image Branding</h4>
+                                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight mt-0.5">Automated "ear-apk.com" watermark injection</p>
+                                </div>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    className="sr-only peer"
+                                    checked={useAiBranding}
+                                    onChange={(e) => setUseAiBranding(e.target.checked)}
+                                />
+                                <div className="w-11 h-6 bg-muted rounded-full peer peer-focus:ring-4 peer-focus:ring-primary/20 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                            </label>
                         </div>
 
                         <button

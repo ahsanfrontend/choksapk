@@ -54,7 +54,8 @@ export default function Header() {
     return (
         <header className="sticky top-0 z-50 bg-background/80 backdrop-blur border-b border-border transition-colors duration-300">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4 md:gap-8">
-                <Link href="/" className="text-lg md:text-2xl font-black text-primary uppercase tracking-tighter italic whitespace-nowrap flex-shrink-0">
+                <Link href="/" className="text-lg md:text-2xl font-black text-primary uppercase tracking-tighter italic whitespace-nowrap flex-shrink-0 flex items-center gap-2">
+                    <img src="/earn-apk.png" alt="" className="w-8 h-8 object-contain" />
                     CHOKS<span className="text-foreground not-italic font-bold">APK</span>
                 </Link>
 

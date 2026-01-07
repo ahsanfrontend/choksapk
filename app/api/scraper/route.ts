@@ -5,11 +5,12 @@ import dbConnect from '@/lib/mongodb';
 import Game from '@/models/Game';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
+import { processAndBrandedImage } from '@/lib/imageProcessor';
 
 async function verifyAdmin() {
     const token = (await cookies()).get('token')?.value;
     const payload = await verifyToken(token || '');
-    return payload && payload.role === 'admin';
+    return payload && (payload.role === 'admin' || payload.role === 'super_admin');
 }
 
 function generateSlug(title: string): string {
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { url, selector, mode } = await req.json();
+        const { url, selector, mode, useAiBranding = false } = await req.json();
 
         if (!url) {
             return NextResponse.json({ error: 'URL is required' }, { status: 400 });
@@ -239,6 +240,15 @@ export async function POST(req: NextRequest) {
                 if (existing) {
                     results.skipped++;
                     continue;
+                }
+
+                // AI Image Branding
+                if (useAiBranding && gameData.thumbnail) {
+                    try {
+                        gameData.thumbnail = await processAndBrandedImage(gameData.thumbnail, 'ear-apk.com');
+                    } catch (imgErr) {
+                        console.error('Branding failed for:', gameData.title, imgErr);
+                    }
                 }
 
                 await Game.create(gameData);

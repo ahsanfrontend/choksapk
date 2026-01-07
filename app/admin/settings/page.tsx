@@ -208,23 +208,50 @@ export default function SettingsPage() {
 
                 {activeTab === 'security' && (
                     <div className="space-y-10 relative z-10 w-full max-w-2xl">
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-3 pb-4 border-b border-border">
-                                <div className="p-3 bg-primary/10 rounded-full text-primary">
-                                    <Lock size={20} />
+                        {currentUser ? (
+                            <div className="space-y-12">
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-3 pb-4 border-b border-border">
+                                        <div className="p-3 bg-primary/10 rounded-full text-primary">
+                                            <UserPlus size={20} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-sm font-black text-foreground uppercase tracking-widest">Admin Identity</h3>
+                                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Update your display name with email verification.</p>
+                                        </div>
+                                    </div>
+                                    <ChangeNameForm currentName={currentUser.name} onUpdate={fetchCurrentUser} />
                                 </div>
-                                <div>
-                                    <h3 className="text-sm font-black text-foreground uppercase tracking-widest">Admin Credentials</h3>
-                                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Update your personal access key.</p>
+
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-3 pb-4 border-b border-border">
+                                        <div className="p-3 bg-primary/10 rounded-full text-primary">
+                                            <Globe size={20} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-sm font-black text-foreground uppercase tracking-widest">Communication Channel</h3>
+                                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Update your administrative email address.</p>
+                                        </div>
+                                    </div>
+                                    <ChangeEmailForm currentEmail={currentUser.email} onUpdate={fetchCurrentUser} userId={currentUser._id} />
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-3 pb-4 border-b border-border">
+                                        <div className="p-3 bg-primary/10 rounded-full text-primary">
+                                            <Lock size={20} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-sm font-black text-foreground uppercase tracking-widest">Admin Credentials</h3>
+                                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Update your personal access key.</p>
+                                        </div>
+                                    </div>
+                                    <ChangePasswordForm userId={currentUser._id} />
                                 </div>
                             </div>
-
-                            {currentUser ? (
-                                <ChangePasswordForm userId={currentUser._id} />
-                            ) : (
-                                <div className="text-sm text-red-500 font-bold">Unable to identify current user.</div>
-                            )}
-                        </div>
+                        ) : (
+                            <div className="text-sm text-red-500 font-bold">Unable to identify current user.</div>
+                        )}
                     </div>
                 )}
 
@@ -365,6 +392,186 @@ function UserManagementSection() {
             <div className="flex items-center gap-2 text-[9px] text-muted-foreground font-bold uppercase tracking-widest bg-muted/50 p-4 rounded-xl border border-border">
                 <Shield size={12} className="text-primary" />
                 Personnel actions are subject to high-level surveillance. All modifications are logged in the secure audit trail.
+            </div>
+        </div>
+    );
+}
+
+function ChangeNameForm({ currentName, onUpdate }: { currentName: string, onUpdate: () => void }) {
+    const [newName, setNewName] = useState('');
+    const [code, setCode] = useState('');
+    const [step, setStep] = useState(1); // 1: Request, 2: Verify
+    const [loading, setLoading] = useState(false);
+
+    const handleRequest = async () => {
+        if (!newName || newName.length < 2) {
+            alert('Please enter a valid name');
+            return;
+        }
+        setLoading(true);
+        try {
+            const res = await fetch('/api/auth/name/request-change', {
+                method: 'POST',
+                body: JSON.stringify({ newName }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setStep(2);
+                alert(data.message || 'Verification code sent to your email.');
+            } else {
+                alert(data.error || 'Failed to send code');
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleVerify = async () => {
+        if (!code) {
+            alert('Please enter verification code');
+            return;
+        }
+        setLoading(true);
+        try {
+            const res = await fetch('/api/auth/name/confirm-change', {
+                method: 'POST',
+                body: JSON.stringify({ code }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert('Username updated successfully!');
+                onUpdate();
+                setStep(1);
+                setNewName('');
+                setCode('');
+            } else {
+                alert(data.error || 'Invalid code');
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Current Identity</label>
+                <div className="w-full bg-muted/20 border border-border border-dashed rounded-2xl px-6 py-4 text-muted-foreground font-bold opacity-70 uppercase tracking-tighter">
+                    {currentName}
+                </div>
+            </div>
+
+            {step === 1 ? (
+                <div className="space-y-3">
+                    <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">New Target Alias</label>
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                            className="flex-1 bg-muted/30 border border-border rounded-2xl px-6 py-4 text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold"
+                            placeholder="Enter New Name"
+                        />
+                        <button
+                            onClick={handleRequest}
+                            disabled={loading}
+                            className="px-6 bg-primary text-primary-foreground font-black text-[10px] uppercase rounded-2xl hover:opacity-90 disabled:opacity-50 transition-all"
+                        >
+                            {loading ? '...' : 'Verify'}
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <div className="space-y-3">
+                    <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Authorization Code</label>
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            value={code}
+                            onChange={(e) => setCode(e.target.value)}
+                            className="flex-1 bg-muted/30 border border-border rounded-2xl px-6 py-4 text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold tracking-[0.5em] text-center"
+                            placeholder="000000"
+                            maxLength={6}
+                        />
+                        <button
+                            onClick={handleVerify}
+                            disabled={loading}
+                            className="px-6 bg-emerald-500 text-white font-black text-[10px] uppercase rounded-2xl hover:opacity-90 disabled:opacity-50 transition-all"
+                        >
+                            {loading ? '...' : 'Confirm'}
+                        </button>
+                    </div>
+                    <button onClick={() => setStep(1)} className="text-[10px] text-primary font-bold uppercase tracking-widest ml-1 hover:underline">Cancel</button>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function ChangeEmailForm({ currentEmail, onUpdate, userId }: { currentEmail: string, onUpdate: () => void, userId: string }) {
+    const [newEmail, setNewEmail] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleUpdate = async () => {
+        if (!newEmail || !newEmail.includes('@')) {
+            alert('Please enter a valid email');
+            return;
+        }
+        setLoading(true);
+        try {
+            const res = await fetch(`/api/users/${userId}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ email: newEmail }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert('Email updated successfully!');
+                onUpdate();
+                setNewEmail('');
+            } else {
+                alert(data.error || 'Failed to update email');
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Active Email</label>
+                <div className="w-full bg-muted/20 border border-border border-dashed rounded-2xl px-6 py-4 text-muted-foreground font-bold opacity-70">
+                    {currentEmail}
+                </div>
+            </div>
+
+            <div className="space-y-3">
+                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Update Address</label>
+                <div className="flex gap-2">
+                    <input
+                        type="email"
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        className="flex-1 bg-muted/30 border border-border rounded-2xl px-6 py-4 text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all font-bold"
+                        placeholder="new@agency.com"
+                    />
+                    <button
+                        onClick={handleUpdate}
+                        disabled={loading}
+                        className="px-6 bg-primary text-primary-foreground font-black text-[10px] uppercase rounded-2xl hover:opacity-90 disabled:opacity-50 transition-all shadow-lg shadow-primary/20"
+                    >
+                        {loading ? '...' : 'Update'}
+                    </button>
+                </div>
             </div>
         </div>
     );

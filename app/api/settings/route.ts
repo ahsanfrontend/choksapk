@@ -8,7 +8,7 @@ async function getAdminPayload() {
     const token = (await cookies()).get('token')?.value;
     if (!token) return null;
     const payload = await verifyToken(token);
-    if (!payload || payload.role !== 'admin') return null;
+    if (!payload || (payload.role !== 'admin' && payload.role !== 'super_admin')) return null;
     return payload;
 }
 

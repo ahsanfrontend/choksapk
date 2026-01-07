@@ -7,8 +7,8 @@ import { Metadata } from 'next';
 
 export async function generateMetadata(): Promise<Metadata> {
     return await getMetadataForPath('/', {
-        title: 'Home | choksapk - Ultimate Asset Vault',
-        description: 'Discover premium gaming assets and referral codes.'
+        title: 'choksapk - Advanced Repository for Premium Assets',
+        description: 'Instant deployment of world-class gaming assets and secure referral protocols. Join the choksapk elite network today.'
     });
 }
 
@@ -58,10 +58,10 @@ export default async function HomePage() {
 
                 <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
                     <h1 className="text-3xl sm:text-5xl md:text-7xl font-extrabold text-foreground mb-4 md:mb-6 uppercase tracking-tighter leading-none italic">
-                        World Class <span className="text-primary not-italic">choksapk</span> Assets
+                        Premium <span className="text-primary not-italic">choksapk</span> Assets
                     </h1>
                     <p className="text-sm md:text-2xl text-muted-foreground mb-8 md:mb-10 max-w-2xl mx-auto leading-relaxed font-medium">
-                        Discover and deploy the best gaming assets from top-tier providers. Instant access to premium repositories.
+                        The definitive repository for verified high-performance assets. Deploy elite gaming protocols with instant access to our secure network.
                     </p>
                     <div className="flex flex-col sm:flex-row justify-center gap-4 md:gap-6">
                         <Link href="/games" className="px-8 md:px-10 py-3.5 md:py-4 bg-primary hover:opacity-90 active:scale-95 text-primary-foreground font-bold text-xs md:text-lg rounded-xl md:rounded-2xl transition-all shadow-xl shadow-primary/20 uppercase tracking-widest">

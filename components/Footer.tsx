@@ -6,14 +6,13 @@ export default function Footer() {
         <footer className="bg-muted border-t border-border py-12 transition-colors duration-300">
             <div className="container mx-auto px-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                    <div>
-                        <Link href="/" className="text-2xl font-bold text-primary mb-4 block">
-                            CHOKS<span className="text-foreground">APK</span>
-                        </Link>
-                        <p className="text-muted-foreground text-sm leading-relaxed">
-                            Premium choksapk referral and discovery platform. Explore top games and play responsibly on authorized platforms.
-                        </p>
-                    </div>
+                    <Link href="/" className="text-lg md:text-2xl font-black text-primary uppercase tracking-tighter italic whitespace-nowrap flex-shrink-0 flex items-center gap-2">
+                        <img src="/earn-apk.png" alt="" className="w-8 h-8 object-contain" />
+                        CHOKS<span className="text-foreground not-italic font-bold">APK</span>
+                    </Link>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                        Verified repository for high-performance assets and secure distribution. Deploying excellence across the digital asset protection landscape.
+                    </p>
 
                     <div>
                         <h4 className="font-bold text-foreground mb-4 uppercase text-xs tracking-widest">Navigation</h4>
@@ -36,8 +35,8 @@ export default function Footer() {
 
                 </div>
 
-                <div className="border-t border-border pt-8 text-center text-muted-foreground text-xs font-medium">
-                    &copy; {new Date().getFullYear()} choksapk. 18+ Only. Please gamble responsibly.
+                <div className="border-t border-border pt-8 text-center text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em]">
+                    &copy; {new Date().getFullYear()} CHOKS APK. CERTIFIED ASSET PROTECTION PROTOCOL.
                 </div>
             </div>
         </footer>
