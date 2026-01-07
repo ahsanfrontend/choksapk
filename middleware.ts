@@ -21,7 +21,12 @@ export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const baseUrl = request.nextUrl.origin;
 
-    // 0. Handle Dynamic Redirects
+    // 0. Early return for manifest and static files (before any processing)
+    if (pathname === '/manifest.json' || pathname === '/robots.txt' || pathname === '/sitemap.xml') {
+        return NextResponse.next();
+    }
+
+    // 1. Handle Dynamic Redirects
     // Skip for API, Admin routes, and static assets to prevent loops and ensure management is always accessible
     const isStaticAsset = pathname.includes('.') || pathname.startsWith('/_next') || pathname.startsWith('/favicon.ico');
 
@@ -60,7 +65,8 @@ export async function middleware(request: NextRequest) {
             pathname === '/api/auth/login' ||
             pathname === '/api/auth/logout' ||
             pathname === '/api/redirects/resolve' ||
-            pathname === '/api/admin/create-admin'; // Allow setup route if it's the first time
+            pathname === '/api/setup/admin' || // Allow setup route for initial admin creation
+            pathname === '/api/debug'; // Temporary debug endpoint
 
         if (isPublicRoute) {
             return NextResponse.next();
