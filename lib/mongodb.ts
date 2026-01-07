@@ -44,9 +44,11 @@ async function dbConnect() {
 
   try {
     cached.conn = await cached.promise;
+    console.log('MongoDB connected successfully');
   } catch (e) {
     cached.promise = null;
-    throw e;
+    console.error('MongoDB connection error:', e);
+    throw new Error('Failed to connect to database. Please check your MONGODB_URI environment variable.');
   }
 
   return cached.conn;

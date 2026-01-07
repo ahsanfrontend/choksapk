@@ -16,7 +16,7 @@ export default function AdminSetupPage() {
         setError('');
         setLoading(true);
         try {
-            const res = await fetch('/api/admin/create-admin', {
+            const res = await fetch('/api/setup/admin', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password }),

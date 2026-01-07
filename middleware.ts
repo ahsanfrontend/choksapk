@@ -22,8 +22,10 @@ export async function middleware(request: NextRequest) {
     const baseUrl = request.nextUrl.origin;
 
     // 0. Handle Dynamic Redirects
-    // Skip for API and Admin routes to prevent loops and ensure management is always accessible
-    if (!pathname.startsWith('/api') && !pathname.startsWith('/admin') && !pathname.startsWith('/_next')) {
+    // Skip for API, Admin routes, and static assets to prevent loops and ensure management is always accessible
+    const isStaticAsset = pathname.includes('.') || pathname.startsWith('/_next') || pathname.startsWith('/favicon.ico');
+
+    if (!pathname.startsWith('/api') && !pathname.startsWith('/admin') && !isStaticAsset) {
         const redirection = await resolveRedirect(pathname, baseUrl);
         if (redirection) {
             return NextResponse.redirect(new URL(redirection.destinationPath, request.url), redirection.type || 301);
@@ -57,7 +59,8 @@ export async function middleware(request: NextRequest) {
         const isPublicRoute =
             pathname === '/api/auth/login' ||
             pathname === '/api/auth/logout' ||
-            pathname === '/api/redirects/resolve';
+            pathname === '/api/redirects/resolve' ||
+            pathname === '/api/admin/create-admin'; // Allow setup route if it's the first time
 
         if (isPublicRoute) {
             return NextResponse.next();
@@ -95,7 +98,10 @@ export const config = {
          * - _next/static (static files)
          * - _next/image (image optimization files)
          * - favicon.ico (favicon file)
+         * - manifest.json
+         * - robots.txt
          */
-        '/((?!api/auth|_next/static|_next/image|favicon.ico).*)',
+        '/((?!api/auth|_next/static|_next/image|favicon.ico|manifest.json|robots.txt).*)',
     ],
 }
+
