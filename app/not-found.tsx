@@ -43,6 +43,8 @@ export default function NotFound() {
                     href="/"
                     className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:opacity-90 transition-all active:scale-95 shadow-2xl shadow-primary/20"
                 >
+
+                    
                     <Home size={18} /> Return Home
                 </Link>
             </div>
