@@ -33,14 +33,16 @@ export async function GET() {
             });
         }
 
-        // Return public-safe data (hide sensitive keys)
-        const publicSettings = {
-            ...settings.toObject(),
-            openaiKey: undefined,
-            geminiKey: undefined,
-        };
+        // Check if requester is admin to reveal sensitive keys
+        const admin = await getAdminPayload();
 
-        return NextResponse.json(publicSettings);
+        const settingsObject = settings.toObject();
+        if (!admin) {
+            settingsObject.openaiKey = undefined;
+            settingsObject.geminiKey = undefined;
+        }
+
+        return NextResponse.json(settingsObject);
     } catch (error) {
         console.error('Failed to fetch settings:', error);
         return NextResponse.json({
