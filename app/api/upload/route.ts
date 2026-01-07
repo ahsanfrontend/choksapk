@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { put } from '@vercel/blob';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { cookies } from 'next/headers';
@@ -22,49 +23,67 @@ export async function POST(req: Request) {
         }
 
         // Validate file type
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'image/x-icon'];
         if (!validTypes.includes(file.type)) {
             return NextResponse.json({
-                error: 'Invalid file type. Only images (JPEG, PNG, GIF, WebP) are allowed.'
+                error: 'Invalid file type. Only images (JPEG, PNG, GIF, WebP, SVG, ICO) are allowed.'
             }, { status: 400 });
         }
 
-        // Validate file size (max 5MB)
-        const maxSize = 5 * 1024 * 1024; // 5MB
+        // Validate file size (max 10MB)
+        const maxSize = 10 * 1024 * 1024; // 10MB
         if (file.size > maxSize) {
             return NextResponse.json({
-                error: 'File too large. Maximum size is 5MB.'
+                error: 'File too large. Maximum size is 10MB.'
             }, { status: 400 });
         }
-
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
 
         // Create unique filename
         const fileExtension = file.name.split('.').pop();
         const filename = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExtension}`;
-        const uploadDir = path.join(process.cwd(), 'public/uploads');
 
+        // Check if running on Vercel (use Blob storage)
+        if (process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL) {
+            try {
+                const blob = await put(filename, file, {
+                    access: 'public',
+                    addRandomSuffix: false,
+                });
+
+                return NextResponse.json({
+                    url: blob.url,
+                    filename: filename,
+                    provider: 'vercel-blob'
+                });
+            } catch (blobError: any) {
+                console.error('Vercel Blob error:', blobError);
+                return NextResponse.json({
+                    error: 'Failed to upload to Vercel Blob. Please ensure BLOB_READ_WRITE_TOKEN is set in your environment variables.',
+                    details: process.env.NODE_ENV === 'development' ? blobError.message : undefined
+                }, { status: 500 });
+            }
+        }
+
+        // Local development: use filesystem
         try {
-            // Ensure dir exists
+            const bytes = await file.arrayBuffer();
+            const buffer = Buffer.from(bytes);
+            const uploadDir = path.join(process.cwd(), 'public/uploads');
+
+            // Ensure directory exists
             await mkdir(uploadDir, { recursive: true });
 
             const filepath = path.join(uploadDir, filename);
             await writeFile(filepath, buffer);
 
             const url = `/uploads/${filename}`;
-            return NextResponse.json({ url, filename });
+            return NextResponse.json({
+                url,
+                filename,
+                provider: 'local'
+            });
         } catch (fsError: any) {
             console.error('File system error:', fsError);
-
-            // Check if running on Vercel (read-only filesystem)
-            if (process.env.VERCEL) {
-                return NextResponse.json({
-                    error: 'File uploads are not supported on Vercel free tier. Please use a cloud storage service like Cloudinary, AWS S3, or Vercel Blob.',
-                    isVercel: true
-                }, { status: 500 });
-            }
-
             throw fsError;
         }
     } catch (error: any) {

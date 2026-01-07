@@ -12,23 +12,44 @@ async function getAdminPayload() {
     return payload;
 }
 
+// Public endpoint for fetching settings (needed for metadata)
 export async function GET() {
-    const admin = await getAdminPayload();
-    if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
     try {
         await dbConnect();
         let settings = await SiteSettings.findOne();
+
         if (!settings) {
             settings = await SiteSettings.create({
                 siteName: 'choksapk',
-                socialLinks: { facebook: '', twitter: '', instagram: '' },
-                homeBanners: []
+                siteTagline: 'Premium Asset Distribution Protocol',
+                socialLinks: {},
+                homeBanners: [],
+                primaryColor: '#DDA430',
+                secondaryColor: '#101010',
+                accentColor: '#E75153',
+                maintenanceMode: false,
+                registrationEnabled: true,
+                commentsEnabled: true,
             });
         }
-        return NextResponse.json(settings);
+
+        // Return public-safe data (hide sensitive keys)
+        const publicSettings = {
+            ...settings.toObject(),
+            openaiKey: undefined,
+            geminiKey: undefined,
+        };
+
+        return NextResponse.json(publicSettings);
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 });
+        console.error('Failed to fetch settings:', error);
+        return NextResponse.json({
+            error: 'Failed to fetch settings',
+            // Return defaults on error
+            siteName: 'choksapk',
+            siteTagline: 'Premium Asset Distribution Protocol',
+            primaryColor: '#DDA430',
+        }, { status: 500 });
     }
 }
 
@@ -50,6 +71,7 @@ export async function POST(req: Request) {
 
         return NextResponse.json(settings);
     } catch (error) {
+        console.error('Failed to update settings:', error);
         return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 });
     }
 }

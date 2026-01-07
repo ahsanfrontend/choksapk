@@ -4,8 +4,10 @@ import { Menu, Search, User } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useRouter } from 'next/navigation';
+import { useSiteSettings } from '@/components/SiteSettingsProvider';
 
 export default function Header() {
+    const settings = useSiteSettings();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -15,7 +17,7 @@ export default function Header() {
     const searchInputRef = useRef<HTMLInputElement>(null);
     const suggestionsRef = useRef<HTMLDivElement>(null);
 
-    // Fetch suggestions with debounce
+    // ... (keep useEffect for suggestions)
     useEffect(() => {
         const fetchSuggestions = async () => {
             if (searchQuery.length < 2) {
@@ -51,12 +53,15 @@ export default function Header() {
         }
     };
 
+    const siteName = settings?.siteName || 'CHOKS APK';
+    const logoUrl = settings?.logoUrl || '/earn-apk.png';
+
     return (
         <header className="sticky top-0 z-50 bg-background/80 backdrop-blur border-b border-border transition-colors duration-300">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4 md:gap-8">
                 <Link href="/" className="text-lg md:text-2xl font-black text-primary uppercase tracking-tighter italic whitespace-nowrap flex-shrink-0 flex items-center gap-2">
-                    <img src="/earn-apk.png" alt="" className="w-8 h-8 object-contain" />
-                    CHOKS<span className="text-foreground not-italic font-bold">APK</span>
+                    <img src={logoUrl} alt="" className="w-8 h-8 object-contain" />
+                    {siteName}
                 </Link>
 
                 <nav className="hidden lg:flex gap-8 items-center font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground mr-auto">

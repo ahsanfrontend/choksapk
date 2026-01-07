@@ -1,41 +1,77 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
+import { ThemeProvider } from '@/components/ThemeProvider';
+import { SiteSettingsProvider } from '@/components/SiteSettingsProvider';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { generateDynamicMetadata, getSiteSettings } from '@/lib/metadata';
+import Script from 'next/script';
 
-import { ThemeProvider } from '@/components/ThemeProvider';
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
-const inter = Inter({ subsets: ['latin'] });
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return generateDynamicMetadata(settings);
+}
 
-export const metadata: Metadata = {
-  title: 'choksapk | Premium Asset Distribution Protocol',
-  description: 'Verified repository for high-performance assets, gaming protocols, and secure distribution. Deploy excellence with choksapk.',
-  icons: {
-    icon: '/earn-apk.png',
-    apple: '/earn-apk.png',
-  },
-  manifest: '/manifest.json',
-};
+async function getAnalyticsId() {
+  try {
+    const settings = await getSiteSettings();
+    return settings?.googleAnalyticsId;
+  } catch {
+    return null;
+  }
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const settings = await getSiteSettings();
+  const googleAnalyticsId = settings?.googleAnalyticsId;
+
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="flex flex-col min-h-screen">
-            {children}
-          </div>
-        </ThemeProvider>
+      <head>
+        <link rel="manifest" href="/api/manifest" />
+        <meta name="theme-color" content={settings?.primaryColor || '#DDA430'} />
+        {googleAnalyticsId && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${googleAnalyticsId}');
+              `}
+            </Script>
+          </>
+        )}
+      </head>
+      <body className={`${inter.variable} ${outfit.variable} font-outfit antialiased`}>
+        <SiteSettingsProvider initialSettings={settings}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <div className="flex flex-col min-h-screen">
+              <Header />
+              <main className="flex-grow">
+                {children}
+              </main>
+              <Footer />
+            </div>
+          </ThemeProvider>
+        </SiteSettingsProvider>
       </body>
     </html>
   );
