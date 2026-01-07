@@ -57,6 +57,9 @@ export interface ISiteSettings extends Document {
     registrationEnabled: boolean;
     commentsEnabled: boolean;
 
+    // Design System
+    uiDesign: 'classic' | 'modern' | 'vip';
+
     // Footer
     footerText?: string;
     copyrightText?: string;
@@ -122,6 +125,9 @@ const SiteSettingsSchema: Schema<ISiteSettings> = new Schema(
         maintenanceMessage: { type: String },
         registrationEnabled: { type: Boolean, default: true },
         commentsEnabled: { type: Boolean, default: true },
+
+        // Design System
+        uiDesign: { type: String, enum: ['classic', 'modern', 'vip'], default: 'vip' },
 
         // Footer
         footerText: { type: String },

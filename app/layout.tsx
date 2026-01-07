@@ -3,8 +3,6 @@ import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { SiteSettingsProvider } from '@/components/SiteSettingsProvider';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { generateDynamicMetadata, getSiteSettings } from '@/lib/metadata';
 import Script from 'next/script';
 
@@ -14,15 +12,6 @@ const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
   return generateDynamicMetadata(settings);
-}
-
-async function getAnalyticsId() {
-  try {
-    const settings = await getSiteSettings();
-    return settings?.googleAnalyticsId;
-  } catch {
-    return null;
-  }
 }
 
 export default async function RootLayout({
@@ -64,11 +53,9 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             <div className="flex flex-col min-h-screen">
-              <Header />
               <main className="flex-grow">
                 {children}
               </main>
-              <Footer />
             </div>
           </ThemeProvider>
         </SiteSettingsProvider>

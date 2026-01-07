@@ -1,4 +1,6 @@
 import { Metadata } from 'next';
+import dbConnect from './mongodb';
+import SiteSettings from '@/models/SiteSettings';
 
 interface SiteSettingsData {
     siteName: string;
@@ -14,6 +16,7 @@ interface SiteSettingsData {
     secondaryColor?: string;
     googleAnalyticsId?: string;
     facebookPixelId?: string;
+    uiDesign?: 'classic' | 'modern' | 'vip';
     socialLinks?: {
         facebook?: string;
         twitter?: string;
@@ -130,15 +133,12 @@ export async function generateDynamicMetadata(
 // Helper function to fetch site settings for metadata
 export async function getSiteSettings(): Promise<SiteSettingsData | null> {
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-        const response = await fetch(`${baseUrl}/api/settings`, {
-            cache: 'no-store',
-        });
-
-        if (!response.ok) return null;
-        return await response.json();
+        await dbConnect();
+        const settings = await SiteSettings.findOne();
+        if (!settings) return null;
+        return JSON.parse(JSON.stringify(settings));
     } catch (error) {
-        console.error('Failed to fetch site settings for metadata:', error);
+        console.error('Failed to fetch site settings from DB:', error);
         return null;
     }
 }

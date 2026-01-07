@@ -37,37 +37,55 @@ export default async function HomePage() {
 
     const siteName = settings?.siteName || 'CHOKS APK';
     const siteTagline = settings?.siteTagline || 'Premium Asset Distribution Protocol';
+    const uiDesign = settings?.uiDesign || 'vip';
 
     return (
-        <div className="bg-background selection:bg-primary/20 bg-[radial-gradient(circle_at_top_right,var(--primary-muted),transparent)]">
+        <div className={`bg-background selection:bg-primary/20 ${uiDesign === 'vip' ? 'bg-[radial-gradient(circle_at_top_right,var(--primary-muted),transparent)]' : ''}`}>
             {/* Hero Section */}
-            <section className="relative min-h-[500px] md:h-[650px] flex items-center justify-center overflow-hidden border-b border-border/50">
-                <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:40px_40px]"></div>
-                <div className="absolute inset-0 bg-gradient-to-tr from-background via-background/80 to-primary/5"></div>
+            <section className={`relative flex items-center justify-center overflow-hidden border-b border-border/50 ${uiDesign === 'vip' ? 'min-h-[500px] md:h-[650px]' :
+                    uiDesign === 'modern' ? 'min-h-[400px] md:h-[550px] py-20' :
+                        'min-h-[300px] md:h-[450px] py-12'
+                }`}>
+                <div className={`absolute inset-0 bg-grid-white/[0.02] ${uiDesign === 'classic' ? 'bg-[size:20px_20px]' : 'bg-[size:40px_40px]'}`}></div>
+                <div className={`absolute inset-0 ${uiDesign === 'vip' ? 'bg-gradient-to-tr from-background via-background/80 to-primary/5' :
+                        uiDesign === 'modern' ? 'bg-gradient-to-b from-primary/5 to-background' :
+                            'bg-background/95'
+                    }`}></div>
 
-                {/* Floating Elements */}
-                <div className="absolute top-1/4 left-10 w-72 h-72 bg-primary/10 rounded-full blur-[120px] animate-pulse"></div>
-                <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-[150px] animate-pulse delay-1000"></div>
+                {/* Floating Elements - Only for VIP */}
+                {uiDesign === 'vip' && (
+                    <>
+                        <div className="absolute top-1/4 left-10 w-72 h-72 bg-primary/10 rounded-full blur-[120px] animate-pulse"></div>
+                        <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-[150px] animate-pulse delay-1000"></div>
+                    </>
+                )}
 
                 <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <Crown size={12} /> VIP ACCESS GRANTED
-                    </div>
+                    {uiDesign !== 'classic' && (
+                        <div className={`inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-primary text-[10px] font-black uppercase tracking-[0.2em] mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500`}>
+                            {uiDesign === 'vip' ? <Crown size={12} /> : <Zap size={12} />}
+                            {uiDesign === 'vip' ? 'VIP ACCESS GRANTED' : 'ELITE ACCESS'}
+                        </div>
+                    )}
 
-                    <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-foreground mb-6 uppercase tracking-tighter leading-[0.9] italic">
-                        {siteName} <span className="text-primary not-italic">ELITE</span> <br />
+                    <h1 className={`font-black text-foreground mb-6 uppercase tracking-tighter leading-[0.9] ${uiDesign === 'vip' ? 'text-4xl sm:text-6xl md:text-8xl italic' :
+                            uiDesign === 'modern' ? 'text-3xl sm:text-5xl md:text-7xl' :
+                                'text-2xl sm:text-4xl md:text-6xl'
+                        }`}>
+                        {siteName} <span className="text-primary not-italic">{uiDesign === 'classic' ? 'Pro' : 'ELITE'}</span> <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-foreground to-muted-foreground">RESOURCES</span>
                     </h1>
 
-                    <p className="text-sm md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed font-medium">
+                    <p className={`text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed font-medium ${uiDesign === 'vip' ? 'text-sm md:text-xl' : 'text-xs md:text-base'
+                        }`}>
                         {siteTagline}. Access verified high-performance gaming assets and secure referral protocols designed for strategic growth.
                     </p>
 
                     <div className="flex flex-col sm:flex-row justify-center gap-4 md:gap-6">
-                        <Link href="/games" className="group flex items-center justify-center gap-3 px-10 py-4 bg-primary hover:opacity-90 active:scale-95 text-primary-foreground font-black text-xs uppercase tracking-widest rounded-2xl transition-all shadow-2xl shadow-primary/20">
+                        <Link href="/games" className={`group flex items-center justify-center gap-3 px-10 py-4 bg-primary hover:opacity-90 active:scale-95 text-primary-foreground font-black text-xs uppercase tracking-widest transition-all ${uiDesign === 'vip' ? 'rounded-2xl shadow-2xl shadow-primary/20' : uiDesign === 'modern' ? 'rounded-xl' : 'rounded-md'}`}>
                             Explore Vault <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                         </Link>
-                        <Link href="/about" className="px-10 py-4 bg-muted hover:bg-muted/80 text-foreground font-black text-xs uppercase tracking-widest rounded-2xl transition-all border border-border">
+                        <Link href="/about" className={`px-10 py-4 bg-muted hover:bg-muted/80 text-foreground font-black text-xs uppercase tracking-widest transition-all border border-border ${uiDesign === 'vip' ? 'rounded-2xl' : uiDesign === 'modern' ? 'rounded-xl' : 'rounded-md'}`}>
                             Learn More
                         </Link>
                     </div>

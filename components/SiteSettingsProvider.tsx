@@ -22,6 +22,7 @@ interface SiteSettings {
     address?: string;
     footerText?: string;
     copyrightText?: string;
+    uiDesign?: 'classic' | 'modern' | 'vip';
 }
 
 const SiteSettingsContext = createContext<SiteSettings | null>(null);

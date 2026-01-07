@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { Menu, Search, User } from 'lucide-react';
+import { Menu, Search, User, Crown, Zap, Globe, Shield, Activity } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useRouter } from 'next/navigation';
@@ -17,7 +17,8 @@ export default function Header() {
     const searchInputRef = useRef<HTMLInputElement>(null);
     const suggestionsRef = useRef<HTMLDivElement>(null);
 
-    // ... (keep useEffect for suggestions)
+    const uiDesign = settings?.uiDesign || 'vip';
+
     useEffect(() => {
         const fetchSuggestions = async () => {
             if (searchQuery.length < 2) {
@@ -57,17 +58,34 @@ export default function Header() {
     const logoUrl = settings?.logoUrl || '/earn-apk.png';
 
     return (
-        <header className="sticky top-0 z-50 bg-background/80 backdrop-blur border-b border-border transition-colors duration-300">
-            <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4 md:gap-8">
-                <Link href="/" className="text-lg md:text-2xl font-black text-primary uppercase tracking-tighter italic whitespace-nowrap flex-shrink-0 flex items-center gap-2">
-                    <img src={logoUrl} alt="" className="w-8 h-8 object-contain" />
-                    {siteName}
+        <header className={`sticky top-0 z-50 border-b transition-all duration-500 ${uiDesign === 'vip' ? 'bg-background/80 backdrop-blur-xl border-primary/20 shadow-lg shadow-primary/5' :
+            uiDesign === 'modern' ? 'bg-background/95 backdrop-blur border-border' :
+                'bg-background border-border shadow-sm'
+            }`}>
+            <div className={`container mx-auto px-4 flex items-center justify-between gap-4 md:gap-8 ${uiDesign === 'vip' ? 'h-20' : 'h-16'
+                }`}>
+                <Link href="/" className={`flex items-center gap-3 transition-transform active:scale-95 ${uiDesign === 'vip' ? 'text-lg md:text-2xl font-black text-primary uppercase tracking-tighter italic' :
+                    uiDesign === 'modern' ? 'text-base md:text-xl font-bold text-foreground uppercase tracking-tight' :
+                        'text-base md:text-lg font-bold text-foreground'
+                    }`}>
+                    <div className={`${uiDesign === 'vip' ? 'p-1.5 bg-primary/10 rounded-xl border border-primary/20 shadow-inner' : ''}`}>
+                        <img src={logoUrl} alt="" className={`${uiDesign === 'vip' ? 'w-8 h-8 md:w-10 md:h-10' : 'w-7 h-7 md:w-8 md:h-8'} object-contain`} />
+                    </div>
+                    <span>{siteName}</span>
                 </Link>
 
-                <nav className="hidden lg:flex gap-8 items-center font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground mr-auto">
-                    <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-                    <Link href="/games" className="hover:text-primary transition-colors">Route Vault</Link>
-                    <Link href="/about" className="hover:text-primary transition-colors">About Us</Link>
+                <nav className={`hidden lg:flex gap-8 items-center font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground mr-auto`}>
+                    {[
+                        { label: 'Home', href: '/' },
+                        { label: 'Route Vault', href: '/games', icon: <Shield size={10} className="text-primary/50" /> },
+                        { label: 'Intelligence', href: '/about' }
+                    ].map((link) => (
+                        <Link key={link.label} href={link.href} className="flex items-center gap-1.5 hover:text-primary transition-colors group">
+                            {uiDesign === 'vip' && link.icon}
+                            {link.label}
+                            {uiDesign === 'vip' && <span className="w-0 group-hover:w-full h-0.5 bg-primary mt-1 absolute bottom-0 transition-all duration-300"></span>}
+                        </Link>
+                    ))}
                 </nav>
 
                 <div className="flex items-center gap-2 md:gap-4 flex-1 max-w-md justify-end">
@@ -75,14 +93,14 @@ export default function Header() {
                         <input
                             ref={searchInputRef}
                             type="text"
-                            placeholder={isSearchFocused ? "Query Asset..." : ""}
+                            placeholder={isSearchFocused ? "Search Assets..." : ""}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onFocus={() => setIsSearchFocused(true)}
                             onBlur={() => setIsSearchFocused(false)}
                             className={`transition-all duration-500 ease-in-out font-black uppercase tracking-widest text-[9px] md:text-[10px] text-foreground placeholder:text-muted-foreground/50 focus:outline-none h-10 ${isSearchFocused
                                 ? 'w-full md:w-64 bg-muted/80 border-primary ring-4 ring-primary/10 pl-10 pr-4 border rounded-full'
-                                : 'w-10 bg-muted/30 border-transparent pl-10 pr-0 cursor-pointer hover:bg-muted/50 rounded-full'
+                                : `w-10 bg-muted/30 border-transparent pl-10 pr-0 cursor-pointer hover:bg-muted/50 ${uiDesign === 'vip' ? 'rounded-2xl' : 'rounded-full'}`
                                 }`}
                         />
                         <button
@@ -98,14 +116,12 @@ export default function Header() {
                             <Search size={16} />
                         </button>
 
-                        {/* Suggestions Dropdown (Desktop) */}
+                        {/* Suggestions Dropdown */}
                         {isSearchFocused && searchQuery.length >= 2 && (suggestions.length > 0 || isLoadingSuggestions) && (
-                            <div
-                                ref={suggestionsRef}
-                                className="absolute top-full right-0 mt-2 w-72 md:w-80 bg-card border border-border rounded-2xl shadow-2xl overflow-hidden py-2 z-[100] animate-in fade-in slide-in-from-top-2 duration-200"
-                            >
+                            <div className={`absolute top-full right-0 mt-2 w-72 md:w-80 bg-card border border-border shadow-2xl overflow-hidden py-2 z-[100] animate-in fade-in slide-in-from-top-2 duration-200 ${uiDesign === 'vip' ? 'rounded-[2rem]' : 'rounded-2xl'
+                                }`}>
                                 {isLoadingSuggestions ? (
-                                    <div className="px-4 py-3 text-[10px] font-black text-muted-foreground uppercase tracking-widest animate-pulse">Scanning Database...</div>
+                                    <div className="px-4 py-3 text-[10px] font-black text-muted-foreground uppercase tracking-widest animate-pulse italic">Scanning Core Database...</div>
                                 ) : (
                                     suggestions.map((game) => (
                                         <button
@@ -117,7 +133,8 @@ export default function Header() {
                                             }}
                                             className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted text-left transition-colors group"
                                         >
-                                            <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0 border border-border group-hover:border-primary/50 transition-colors">
+                                            <div className={`w-10 h-10 overflow-hidden bg-muted flex-shrink-0 border border-border group-hover:border-primary/50 transition-colors ${uiDesign === 'vip' ? 'rounded-xl' : 'rounded-lg'
+                                                }`}>
                                                 <img src={game.thumbnail} alt="" className="w-full h-full object-cover" />
                                             </div>
                                             <div className="flex-1 min-w-0">
@@ -134,6 +151,12 @@ export default function Header() {
                     <div className="flex items-center gap-2">
                         <ThemeToggle />
 
+                        {uiDesign === 'vip' && (
+                            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-primary text-[8px] font-black uppercase tracking-widest">
+                                <Crown size={10} /> ELITE
+                            </div>
+                        )}
+
                         <button className="sm:hidden p-2 hover:bg-accent rounded-full text-muted-foreground hover:text-foreground transition-colors" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
                             <Search size={20} />
                         </button>
@@ -147,56 +170,34 @@ export default function Header() {
 
             {/* Mobile Menu */}
             {mobileMenuOpen && (
-                <div className="lg:hidden bg-card border-t border-border p-6 shadow-2xl animate-in slide-in-from-top duration-300">
+                <div className={`lg:hidden bg-card border-t border-border p-6 shadow-2xl animate-in slide-in-from-top duration-300 ${uiDesign === 'vip' ? 'rounded-b-[2.5rem]' : ''
+                    }`}>
                     <form onSubmit={handleSearch} className="relative mb-6">
                         <input
                             type="text"
-                            placeholder="Search Repository..."
+                            placeholder="Search Vault..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-muted border border-border rounded-2xl py-3.5 pl-12 pr-4 text-[10px] font-black uppercase tracking-widest text-foreground focus:outline-none focus:border-primary transition-all"
+                            className={`w-full bg-muted border border-border py-4 pl-12 pr-4 text-[10px] font-black uppercase tracking-widest text-foreground focus:outline-none focus:border-primary transition-all ${uiDesign === 'vip' ? 'rounded-2xl' : 'rounded-xl'
+                                }`}
                         />
                         <button type="submit" className="absolute left-0 top-0 bottom-0 px-4 flex items-center justify-center text-muted-foreground active:text-primary transition-colors">
                             <Search size={18} />
                         </button>
-
-                        {/* Mobile Suggestions */}
-                        {searchQuery.length >= 2 && (suggestions.length > 0 || isLoadingSuggestions) && (
-                            <div className="absolute top-full left-0 right-0 mt-2 bg-muted border border-border rounded-2xl shadow-xl overflow-hidden z-50">
-                                {isLoadingSuggestions ? (
-                                    <div className="px-5 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-widest">Searching...</div>
-                                ) : (
-                                    suggestions.map((game) => (
-                                        <button
-                                            key={game.slug}
-                                            onClick={() => {
-                                                router.push(`/game/${game.slug}`);
-                                                setMobileMenuOpen(false);
-                                                setSearchQuery('');
-                                            }}
-                                            className="w-full flex items-center gap-4 px-5 py-4 hover:bg-background border-b border-border/50 last:border-0 text-left"
-                                        >
-                                            <div className="w-12 h-12 rounded-xl overflow-hidden bg-background flex-shrink-0 border border-border">
-                                                <img src={game.thumbnail} alt="" className="w-full h-full object-cover" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="text-[11px] font-black text-foreground uppercase truncate">{game.title}</div>
-                                                <div className="text-[9px] font-medium text-muted-foreground uppercase tracking-widest">{game.provider}</div>
-                                            </div>
-                                        </button>
-                                    ))
-                                )}
-                            </div>
-                        )}
                     </form>
                     <div className="flex flex-col gap-5">
-                        <Link href="/" onClick={() => setMobileMenuOpen(false)} className="text-[11px] font-black text-foreground hover:text-primary uppercase tracking-[0.2em] transition-colors">Home</Link>
-                        <Link href="/games" onClick={() => setMobileMenuOpen(false)} className="text-[11px] font-black text-foreground hover:text-primary uppercase tracking-[0.2em] transition-colors">Route Vault</Link>
-                        <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="text-[11px] font-black text-foreground hover:text-primary uppercase tracking-[0.2em] transition-colors">About Us</Link>
+                        <Link href="/" onClick={() => setMobileMenuOpen(false)} className="text-[11px] font-black text-foreground hover:text-primary uppercase tracking-[0.2em] transition-colors flex items-center gap-3">
+                            {uiDesign === 'vip' && <Globe size={14} className="text-primary/50" />} Home
+                        </Link>
+                        <Link href="/games" onClick={() => setMobileMenuOpen(false)} className="text-[11px] font-black text-foreground hover:text-primary uppercase tracking-[0.2em] transition-colors flex items-center gap-3">
+                            {uiDesign === 'vip' && <Shield size={14} className="text-primary/50" />} Route Vault
+                        </Link>
+                        <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="text-[11px] font-black text-foreground hover:text-primary uppercase tracking-[0.2em] transition-colors flex items-center gap-3">
+                            {uiDesign === 'vip' && <Activity size={14} className="text-primary/50" />} Intelligence
+                        </Link>
                     </div>
                 </div>
             )}
         </header>
-
     );
 }

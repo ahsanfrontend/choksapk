@@ -1,10 +1,12 @@
 import dbConnect from '@/lib/mongodb';
 import Game from '@/models/Game';
+import SiteSettings from '@/models/SiteSettings';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getMetadataForPath } from '@/lib/seo';
 import { Metadata } from 'next';
 import PartnerClickTracker from '@/components/PartnerClickTracker';
+import { ShieldCheck, Download, Star, ExternalLink, Info, Layers, RefreshCw, Sparkles } from 'lucide-react';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
     const { slug } = await params;
@@ -26,10 +28,13 @@ export const dynamic = 'force-dynamic';
 export default async function GamePage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
     const path = `/game/${slug}`;
-    let game;
+    let game: any = null;
     let relatedGames: any[] = [];
+    let settings: any = null;
+
     try {
         await dbConnect();
+        settings = await SiteSettings.findOne();
         game = await Game.findOne({ slug: slug, isActive: true });
         if (game) {
             relatedGames = await Game.find({
@@ -39,191 +44,194 @@ export default async function GamePage({ params }: { params: Promise<{ slug: str
             }).limit(4);
         }
     } catch (error) {
-        console.error("Game Detail DB Error, using mock:", error);
-        game = {
-            _id: 'mock-id',
-            title: slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-            slug: slug,
-            category: 'slots',
-            description: 'Experience the thrill of this modern slot game. Featuring high volatility and massive multipliers, it is one of the most popular titles in our collection.',
-            provider: 'Pragmatic Play',
-            thumbnail: `https://placehold.co/800x450/1e293b/fbbf24?text=${slug}`,
-            downloadUrl: '',
-            referralUrl: 'https://choksapk-partner.com/ref/demo',
-            rating: 4.4,
-            version: '1.0.0',
-            requirements: 'Android 6.9+',
-            downloadCount: '500,000+',
-            fileSize: '39.65 MB',
-            isActive: true,
-            createdAt: new Date()
-        };
-        relatedGames = Array(4).fill(null).map((_, i) => ({
-            _id: `mock-rel-${i}`,
-            title: `Related Game ${i + 1}`,
-            slug: `related-game-${i + 1}`,
-            thumbnail: `https://placehold.co/400x300/1e293b/fbbf24?text=Related+${i + 1}`,
-            provider: 'Provider X'
-        }));
+        console.error("Game Detail DB Error:", error);
     }
 
     if (!game) notFound();
 
+    const uiDesign = settings?.uiDesign || 'vip';
     const isNew = game.createdAt && (new Date().getTime() - new Date(game.createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000;
 
     return (
-        <div className="min-h-screen bg-background transition-colors duration-300">
+        <div className={`min-h-screen transition-colors duration-500 ${uiDesign === 'vip' ? 'bg-[radial-gradient(circle_at_top_left,var(--primary-muted),transparent)]' : 'bg-background'
+            }`}>
             {/* Game Header Area */}
-            <div className="bg-card border-b border-border py-8 mb-10 shadow-sm relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mt-32"></div>
+            <div className={`border-b transition-all duration-500 relative overflow-hidden ${uiDesign === 'vip' ? 'bg-card/50 backdrop-blur-xl border-primary/10 py-12 md:py-20' :
+                uiDesign === 'modern' ? 'bg-card border-border py-8 md:py-12' :
+                    'bg-muted py-6 md:py-8'
+                }`}>
+                {uiDesign === 'vip' && (
+                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -mr-64 -mt-64 animate-pulse"></div>
+                )}
+
                 <div className="container mx-auto px-4 relative z-10">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="flex items-center gap-4 md:gap-6">
-                            <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl md:rounded-[2rem] overflow-hidden shadow-2xl border-2 border-primary ring-4 md:ring-8 ring-primary/5 group relative flex-shrink-0">
-                                <img src={game.thumbnail} alt={game.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+                        <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-10 text-center md:text-left">
+                            <div className={`relative flex-shrink-0 group ${uiDesign === 'vip' ? 'w-24 h-24 md:w-40 md:h-40' :
+                                uiDesign === 'modern' ? 'w-20 h-20 md:w-32 md:h-32' :
+                                    'w-16 h-16 md:w-24 md:h-24'
+                                }`}>
+                                <div className={`w-full h-full overflow-hidden border-2 transition-all duration-500 group-hover:scale-105 ${uiDesign === 'vip' ? 'rounded-[2.5rem] border-primary shadow-2xl shadow-primary/20 ring-4 ring-primary/5' :
+                                    uiDesign === 'modern' ? 'rounded-3xl border-border shadow-lg' :
+                                        'rounded-xl border-border shadow-sm'
+                                    }`}>
+                                    <img src={game.thumbnail} alt={game.title} className="w-full h-full object-cover" />
+                                </div>
                                 {isNew && (
-                                    <div className="absolute top-2 left-2 px-2 py-0.5 bg-blue-600 text-[8px] font-black text-white rounded-sm uppercase tracking-widest shadow-lg">NEW</div>
+                                    <div className={`absolute -top-2 -right-2 px-3 py-1 bg-primary text-primary-foreground text-[8px] md:text-[10px] font-black uppercase tracking-widest shadow-xl flex items-center gap-1 ${uiDesign === 'vip' ? 'rounded-full' : 'rounded-lg'
+                                        }`}>
+                                        <Sparkles size={10} /> NEW
+                                    </div>
                                 )}
                             </div>
-                            <div>
-                                <h1 className="text-xl sm:text-3xl md:text-5xl font-black text-foreground uppercase tracking-tighter leading-tight mb-2 md:mb-3 italic line-clamp-2 md:line-clamp-none">{game.title}</h1>
-                                <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                                    <span className="px-3 py-1 md:px-4 md:py-1.5 bg-primary/10 text-primary text-[7px] md:text-[10px] font-black rounded-full uppercase tracking-widest border border-primary/20">{game.provider}</span>
+
+                            <div className="space-y-4">
+                                <h1 className={`font-black text-foreground uppercase tracking-tighter leading-none italic ${uiDesign === 'vip' ? 'text-2xl md:text-6xl' :
+                                    uiDesign === 'modern' ? 'text-xl md:text-4xl' :
+                                        'text-lg md:text-3xl'
+                                    }`}>
+                                    {game.title}
+                                </h1>
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                                    <span className={`px-4 py-1.5 font-black uppercase tracking-widest text-[8px] md:text-[10px] border transition-colors ${uiDesign === 'vip' ? 'bg-primary/10 text-primary border-primary/20 rounded-full' : 'bg-muted text-muted-foreground border-border rounded-lg'
+                                        }`}>
+                                        {game.provider}
+                                    </span>
+                                    {game.category && (
+                                        <span className={`px-4 py-1.5 font-black uppercase tracking-widest text-[8px] md:text-[10px] border border-border bg-muted/50 text-muted-foreground ${uiDesign === 'vip' ? 'rounded-full' : 'rounded-lg'
+                                            }`}>
+                                            {game.category}
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-4 md:gap-6 bg-muted/30 p-3 md:p-4 rounded-[1.5rem] md:rounded-[2rem] border border-border mt-4 md:mt-0">
-                            <div className="flex -space-x-2 md:-space-x-3">
-                                {[1, 2, 3].map(i => (
-                                    <div key={i} className={`w-8 h-8 md:w-12 md:h-12 rounded-full border-2 md:border-4 border-card bg-muted flex items-center justify-center text-[8px] md:text-[10px] font-black text-muted-foreground shadow-xl`}>
-                                        {String.fromCharCode(64 + i)}
-                                    </div>
-                                ))}
-                                <div className="w-8 h-8 md:w-12 md:h-12 rounded-full border-2 md:border-4 border-card bg-emerald-500 flex items-center justify-center text-[8px] md:text-[10px] font-black text-white shadow-xl ring-2 ring-emerald-500/20">
-                                    +12k
-                                </div>
+                        <div className={`hidden lg:flex items-center gap-8 px-10 py-6 border border-border transition-all ${uiDesign === 'vip' ? 'bg-background/50 backdrop-blur-md rounded-[3rem] border-primary/10 shadow-xl' : 'bg-muted/30 rounded-2xl'
+                            }`}>
+                            <div className="text-center">
+                                <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Downloads</p>
+                                <p className="text-xl font-black text-foreground">{game.downloadCount || '12.4k'}</p>
                             </div>
-                            <div className="flex flex-col">
-                                <span className="text-[8px] md:text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest leading-none mb-1 text-right">Instant Access</span>
-                                <span className="text-px md:text-xs font-bold text-foreground">{game.downloadCount || '12,482'} Downloads</span>
+                            <div className="w-px h-10 bg-border"></div>
+                            <div className="text-center">
+                                <p className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-1">Rating</p>
+                                <div className="flex items-center gap-1">
+                                    <Star size={14} className="fill-primary text-primary" />
+                                    <p className="text-xl font-black text-foreground">{game.rating || '4.8'}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 pb-24">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-                    {/* Sidebar Actions - TOP on Mobile, RIGHT on Desktop */}
-                    <div className="lg:col-span-4 space-y-8 order-1 lg:order-2">
-                        <div className="bg-card rounded-[2.5rem] border border-border sticky top-28 shadow-2xl ring-1 ring-primary/5 overflow-hidden">
-                            {/* Integrated Thumbnail */}
-                            <div className="w-full aspect-[16/10] bg-muted relative overflow-hidden group">
-                                <img src={game.thumbnail} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                {isNew && (
-                                    <div className="absolute top-4 left-4 px-3 py-1 bg-blue-600 text-[10px] font-black text-white rounded-lg uppercase tracking-widest shadow-xl">NEW</div>
-                                )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent"></div>
-                                <div className="absolute bottom-4 left-6 flex items-center gap-2">
-                                    <div className="flex text-yellow-500">
-                                        {[...Array(5)].map((_, i) => (
-                                            <svg key={i} className={`w-3 h-3 ${i < Math.floor(game.rating || 4.4) ? 'fill-current' : 'text-muted'}`} viewBox="0 0 20 20">
-                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                            </svg>
-                                        ))}
-                                    </div>
-                                    <span className="text-xs font-black text-foreground">{game.rating || 4.4}</span>
-                                </div>
+            <div className={`container mx-auto px-4 ${uiDesign === 'vip' ? 'py-20 md:py-24' : 'py-12 md:py-16'}`}>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+                    {/* Main Section */}
+                    <div className="lg:col-span-8 space-y-12">
+                        <section className={`p-8 md:p-12 border transition-all ${uiDesign === 'vip' ? 'bg-card/50 backdrop-blur-md border-primary/10 rounded-[3rem] shadow-xl' :
+                            uiDesign === 'modern' ? 'bg-card border-border rounded-3xl shadow-sm' :
+                                'bg-background border-border rounded-xl'
+                            }`}>
+                            <h2 className="text-lg md:text-2xl font-black text-foreground mb-8 uppercase tracking-tighter italic flex items-center gap-3">
+                                <span className="w-8 h-1.5 bg-primary rounded-full"></span>
+                                {uiDesign === 'classic' ? 'Product Description' : 'Technical Specifications'}
+                            </h2>
+                            <div className={`prose prose-invert max-w-none prose-p:text-muted-foreground prose-strong:text-primary prose-headings:text-foreground prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-headings:italic ${uiDesign === 'vip' ? 'prose-p:text-sm md:prose-p:text-base prose-p:font-medium prose-p:leading-relaxed' : 'prose-sm'
+                                }`}>
+                                <div dangerouslySetInnerHTML={{ __html: game.description || '' }} />
                             </div>
+                        </section>
 
-                            <div className="p-6 md:p-8 space-y-6 md:space-y-8 relative">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
+                        <section className={`p-8 md:p-12 border transition-all ${uiDesign === 'vip' ? 'bg-card/50 backdrop-blur-md border-primary/10 rounded-[3rem] shadow-xl' :
+                            uiDesign === 'modern' ? 'bg-card border-border rounded-3xl shadow-sm' :
+                                'bg-background border-border rounded-xl'
+                            }`}>
+                            <div className="flex justify-between items-center mb-8">
+                                <h2 className="text-lg md:text-2xl font-black text-foreground uppercase tracking-tighter italic flex items-center gap-3">
+                                    <span className="w-8 h-1.5 bg-primary rounded-full"></span> Related Protocols
+                                </h2>
+                                <Link href="/games" className="text-[10px] font-black text-primary hover:underline uppercase tracking-widest">Deploy All</Link>
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                {relatedGames.map((rel) => (
+                                    <Link key={rel._id.toString()} href={`/game/${rel.slug}`} className="group space-y-3">
+                                        <div className={`aspect-square overflow-hidden border transition-all duration-500 scale-100 group-hover:scale-105 ${uiDesign === 'vip' ? 'rounded-[2rem] border-primary/10 group-hover:border-primary shadow-lg' :
+                                            uiDesign === 'modern' ? 'rounded-2xl border-border group-hover:border-primary' :
+                                                'rounded-lg border-border'
+                                            }`}>
+                                            <img src={rel.thumbnail} className="w-full h-full object-cover" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-[10px] md:text-xs font-black text-foreground uppercase truncate group-hover:text-primary transition-colors">{rel.title}</h4>
+                                            <p className="text-[8px] text-muted-foreground uppercase font-black tracking-widest">{rel.provider}</p>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </section>
+                    </div>
 
-                                <div className="relative z-10">
-                                    <h3 className="text-base md:text-lg font-black text-foreground uppercase tracking-tighter italic mb-2 md:mb-3">{game.title}</h3>
-                                    <p className="text-muted-foreground text-[8px] md:text-[10px] font-medium leading-relaxed mb-4 md:mb-6">Access certified source code from our encrypted master server. Downloads are SHA-256 validated.</p>
-
-                                    <PartnerClickTracker gameId={game._id.toString()} path={path}>
-                                        <a
-                                            href={game.referralUrl || '#'}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="w-full py-4 md:py-5 bg-[#065F32] hover:bg-[#064e29] active:scale-[0.98] text-white font-black rounded-xl md:rounded-2xl transition-all shadow-xl shadow-emerald-900/20 flex flex-col items-center justify-center gap-1 uppercase tracking-widest text-[8px] md:text-[10px]"
-                                        >
-                                            <span className="text-[10px] md:text-[11px]">Download Protocol</span>
-                                            <span className="text-[6px] md:text-[7px] opacity-70 font-black tracking-tighter">ENCRYPTED BRANCH {game.version || '1.0.0'}</span>
-                                        </a>
-                                    </PartnerClickTracker>
+                    {/* Sidebar Actions */}
+                    <div className="lg:col-span-4 space-y-8">
+                        <aside className={`p-8 md:p-10 border transition-all sticky top-32 ${uiDesign === 'vip' ? 'bg-card rounded-[3.5rem] border-primary/20 shadow-2xl shadow-primary/5 ring-1 ring-primary/10' :
+                            uiDesign === 'modern' ? 'bg-card border-border rounded-[2.5rem] shadow-xl' :
+                                'bg-muted border-border rounded-2xl shadow-sm'
+                            }`}>
+                            <div className="space-y-8">
+                                <div>
+                                    <h3 className="text-base md:text-lg font-black text-foreground uppercase tracking-tighter italic mb-3">Deployment Hub</h3>
+                                    <p className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest leading-relaxed">Verified binary deployment for secure tactical discovery. SHA-256 integrity monitored.</p>
                                 </div>
 
-                                {/* Integrated Asset Stats */}
-                                <div className="pt-6 md:pt-8 border-t border-border grid grid-cols-2 gap-3 md:gap-4 relative z-10">
+                                <PartnerClickTracker gameId={game._id.toString()} path={path}>
+                                    <a
+                                        href={game.referralUrl || '#'}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={`w-full py-6 flex flex-col items-center justify-center gap-1 transition-all active:scale-95 group shadow-2xl ${uiDesign === 'vip' ? 'bg-primary text-primary-foreground rounded-3xl shadow-primary/30 hover:opacity-90' :
+                                            uiDesign === 'modern' ? 'bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700' :
+                                                'bg-foreground text-background rounded-xl'
+                                            }`}
+                                    >
+                                        <span className="text-xs md:text-sm font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                                            <Download size={18} /> Download Protocol
+                                        </span>
+                                        <span className="text-[8px] font-black opacity-60 uppercase tracking-tighter">Secure Build {game.version || '1.0.0'}</span>
+                                    </a>
+                                </PartnerClickTracker>
+
+                                <div className="space-y-4 pt-4 border-t border-border/50">
                                     {[
-                                        { label: 'Asset Size', value: game.fileSize || '39.65 MB' },
-                                        { label: 'OS Version', value: game.requirements || 'Android 6.9+' },
-                                        { label: 'Integrity', value: 'Verified' },
-                                        { label: 'Updated', value: 'Recent' },
-                                    ].map((stat, i) => (
-                                        <div key={i} className="flex flex-col">
-                                            <span className="text-[6px] md:text-[7px] font-black text-muted-foreground uppercase tracking-widest mb-1">{stat.label}</span>
-                                            <span className="text-[8px] md:text-[10px] font-black text-foreground uppercase tracking-tighter">{stat.value}</span>
+                                        { icon: <Layers size={14} />, label: 'Asset Size', value: game.fileSize || '38 MB' },
+                                        { icon: <ShieldCheck size={14} />, label: 'OS Integrity', value: game.requirements || 'Android 6+' },
+                                        { icon: <RefreshCw size={14} />, label: 'Last Sync', value: 'Live Feed' },
+                                        { icon: <ExternalLink size={14} />, label: 'Distribution', value: 'Global Node' },
+                                    ].map((spec, i) => (
+                                        <div key={i} className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3 text-muted-foreground uppercase tracking-widest font-black text-[9px]">
+                                                <span className="text-primary">{spec.icon}</span>
+                                                {spec.label}
+                                            </div>
+                                            <div className="text-[10px] font-black text-foreground uppercase tracking-tight italic">{spec.value}</div>
                                         </div>
                                     ))}
                                 </div>
 
-                                <div className="pt-6 border-t border-border flex justify-between items-center relative z-10">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                                        <span className="text-[7px] md:text-[8px] font-black text-muted-foreground uppercase tracking-widest">Active Link</span>
+                                <div className={`p-6 flex items-center gap-4 transition-colors ${uiDesign === 'vip' ? 'bg-primary/5 rounded-[2rem] border border-primary/10' : 'bg-muted/50 rounded-2xl border border-border'
+                                    }`}>
+                                    <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/20">
+                                        <ShieldCheck size={20} />
                                     </div>
-                                    <span className="text-[8px] md:text-[10px] font-black text-primary uppercase tracking-tighter">12.4k DL</span>
+                                    <div>
+                                        <p className="text-[10px] font-black text-foreground uppercase tracking-widest leading-none mb-1">Virus Scan Clear</p>
+                                        <p className="text-[8px] font-bold text-muted-foreground uppercase tracking-tighter italic">SHA-256 Passed</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </aside>
                     </div>
-
-                    {/* Main Section - BELOW actions on mobile, LEFT on desktop */}
-                    <div className="lg:col-span-8 space-y-10 order-2 lg:order-1">
-                        {/* Tech Specs - 2nd on mobile, 1st on desktop */}
-                        <div className="bg-card p-6 md:p-10 lg:p-14 rounded-3xl md:rounded-[3rem] border border-border shadow-xl relative overflow-hidden">
-                            <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mb-32"></div>
-                            <h2 className="text-lg md:text-2xl font-black text-foreground mb-6 md:mb-8 uppercase tracking-tighter italic flex items-center gap-3 relative z-10">
-                                <span className="w-6 md:w-8 h-1 md:h-1.5 bg-primary rounded-full"></span> Technical Specification
-                            </h2>
-                            <div className="prose prose-invert max-w-none relative z-10 prose-p:text-muted-foreground prose-headings:text-foreground prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-primary">
-                                <div
-                                    className="description-content"
-                                    dangerouslySetInnerHTML={{ __html: game.description || '' }}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Related Apps Section - LAST on mobile and desktop main column */}
-                        <div className="bg-card p-6 md:p-10 lg:p-14 rounded-3xl md:rounded-[3rem] border border-border shadow-xl relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] -mr-32 -mt-32"></div>
-                            <div className="flex justify-between items-end mb-6 md:mb-8 relative z-10">
-                                <div>
-                                    <h2 className="text-lg md:text-2xl font-black text-foreground uppercase tracking-tighter italic flex items-center gap-2 md:gap-3">
-                                        <span className="w-6 md:w-8 h-1 md:h-1.5 bg-primary rounded-full"></span> Related Apps
-                                    </h2>
-                                </div>
-                                <Link href="/games" className="text-[7px] md:text-[10px] font-black text-primary hover:underline uppercase tracking-[0.2em]">View All Assets</Link>
-                            </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6 relative z-10">
-                                {relatedGames.map((rel: any) => (
-                                    <Link key={rel._id} href={`/game/${rel.slug}`} className="group bg-muted/30 p-3 md:p-4 rounded-2xl md:rounded-[2.5rem] border border-border hover:border-primary transition-all shadow-sm hover:shadow-2xl">
-                                        <div className="aspect-square rounded-xl md:rounded-[2rem] overflow-hidden mb-3 md:mb-4 bg-muted border border-border">
-                                            <img src={rel.thumbnail} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-                                        </div>
-                                        <h4 className="text-[10px] md:text-xs font-black text-foreground uppercase truncate px-1 md:px-2">{rel.title}</h4>
-                                        <p className="text-[6px] md:text-[8px] text-muted-foreground uppercase font-black tracking-widest px-1 md:px-2 mt-1">{rel.provider}</p>
-                                    </Link>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>

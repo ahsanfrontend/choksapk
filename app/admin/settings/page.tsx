@@ -37,6 +37,7 @@ interface ISettings {
     copyrightText: string;
     openaiKey: string;
     geminiKey: string;
+    uiDesign: 'classic' | 'modern' | 'vip';
 }
 
 interface IUser {
@@ -78,6 +79,7 @@ export default function SettingsPage() {
         copyrightText: '',
         openaiKey: '',
         geminiKey: '',
+        uiDesign: 'vip',
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -372,26 +374,58 @@ export default function SettingsPage() {
                 )}
 
                 {activeTab === 'theme' && (
-                    <div className="space-y-8">
-                        <h2 className="text-2xl font-black text-foreground uppercase tracking-tight mb-6">Theme Colors</h2>
+                    <div className="space-y-12">
+                        <section>
+                            <h2 className="text-2xl font-black text-foreground uppercase tracking-tight mb-6">Theme Colors</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <ColorPickerField
+                                    label="Primary Color"
+                                    value={settings.primaryColor}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSettings({ ...settings, primaryColor: e.target.value })}
+                                />
+                                <ColorPickerField
+                                    label="Secondary Color"
+                                    value={settings.secondaryColor}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSettings({ ...settings, secondaryColor: e.target.value })}
+                                />
+                                <ColorPickerField
+                                    label="Accent Color"
+                                    value={settings.accentColor}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSettings({ ...settings, accentColor: e.target.value })}
+                                />
+                            </div>
+                        </section>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <ColorPickerField
-                                label="Primary Color"
-                                value={settings.primaryColor}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSettings({ ...settings, primaryColor: e.target.value })}
-                            />
-                            <ColorPickerField
-                                label="Secondary Color"
-                                value={settings.secondaryColor}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSettings({ ...settings, secondaryColor: e.target.value })}
-                            />
-                            <ColorPickerField
-                                label="Accent Color"
-                                value={settings.accentColor}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSettings({ ...settings, accentColor: e.target.value })}
-                            />
-                        </div>
+                        <section className="pt-8 border-t border-border">
+                            <h2 className="text-2xl font-black text-foreground uppercase tracking-tight mb-2">Architectural Style</h2>
+                            <p className="text-xs text-muted-foreground mb-8 uppercase tracking-widest font-bold">Select the visual framework for your storefront</p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {[
+                                    { id: 'classic', name: 'Classic Protocol', desc: 'Conservative, high-density information layout with traditional grid systems.' },
+                                    { id: 'modern', name: 'Modern Aegis', desc: 'Balanced, minimal design with focus on typography and whitespace.' },
+                                    { id: 'vip', name: 'VIP Executive', desc: 'High-end aesthetic featuring glassmorphism, gradients, and elite interactions.' }
+                                ].map((style) => (
+                                    <button
+                                        key={style.id}
+                                        onClick={() => setSettings({ ...settings, uiDesign: style.id as any })}
+                                        className={`p-6 rounded-[2rem] border-2 text-left transition-all ${settings.uiDesign === style.id
+                                                ? 'border-primary bg-primary/5 shadow-xl shadow-primary/10'
+                                                : 'border-border bg-card hover:border-muted-foreground/30'
+                                            }`}
+                                    >
+                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 ${settings.uiDesign === style.id ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                                            }`}>
+                                            {style.id === 'classic' && <Globe size={20} />}
+                                            {style.id === 'modern' && <Activity size={20} />}
+                                            {style.id === 'vip' && <Crown size={20} />}
+                                        </div>
+                                        <h3 className="font-black text-foreground uppercase tracking-tight mb-2">{style.name}</h3>
+                                        <p className="text-[10px] text-muted-foreground leading-relaxed uppercase tracking-wide font-medium">{style.desc}</p>
+                                    </button>
+                                ))}
+                            </div>
+                        </section>
                     </div>
                 )}
 
