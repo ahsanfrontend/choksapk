@@ -14,8 +14,8 @@ export default function Footer() {
 
     return (
         <footer className={`transition-all duration-500 border-t ${uiDesign === 'vip' ? 'bg-muted/50 border-primary/10 py-20 relative overflow-hidden' :
-                uiDesign === 'modern' ? 'bg-muted border-border py-16' :
-                    'bg-card border-border py-12'
+            uiDesign === 'modern' ? 'bg-muted border-border py-16' :
+                'bg-card border-border py-12'
             }`}>
             {uiDesign === 'vip' && (
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
@@ -25,7 +25,7 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
                     <div className="space-y-6">
                         <Link href="/" className={`flex items-center gap-3 transition-transform active:scale-95 ${uiDesign === 'vip' ? 'text-2xl font-black text-primary uppercase tracking-tighter italic' :
-                                'text-xl font-bold text-foreground uppercase tracking-tight'
+                            'text-xl font-bold text-foreground uppercase tracking-tight'
                             }`}>
                             <div className={`${uiDesign === 'vip' ? 'p-1.5 bg-primary/10 rounded-xl border border-primary/20 shadow-inner' : ''}`}>
                                 <img src={logoUrl} alt="" className="w-8 h-8 object-contain" />
@@ -49,8 +49,8 @@ export default function Footer() {
                                     key={i}
                                     href={social.href}
                                     className={`w-10 h-10 flex items-center justify-center transition-all ${uiDesign === 'vip'
-                                            ? 'bg-primary/5 border border-primary/20 text-muted-foreground hover:text-primary hover:border-primary rounded-xl'
-                                            : 'bg-muted text-muted-foreground hover:text-primary rounded-full'
+                                        ? 'bg-primary/5 border border-primary/20 text-muted-foreground hover:text-primary hover:border-primary rounded-xl'
+                                        : 'bg-muted text-muted-foreground hover:text-primary rounded-full'
                                         }`}
                                 >
                                     {social.icon}
@@ -63,7 +63,7 @@ export default function Footer() {
                         <h4 className={`font-black uppercase tracking-[0.2em] mb-8 ${uiDesign === 'vip' ? 'text-[10px] text-primary' : 'text-xs text-foreground'}`}>Intelligence Hub</h4>
                         <ul className={`space-y-4 ${uiDesign === 'vip' ? 'text-[10px] font-black uppercase tracking-widest' : 'text-sm'}`}>
                             <li><Link href="/" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">{uiDesign === 'vip' && <Globe size={12} />} Home</Link></li>
-                            <li><Link href="/games" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">{uiDesign === 'vip' && <ShieldCheck size={12} />} Route Vault</Link></li>
+                            <li><Link href="/games" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">{uiDesign === 'vip' && <ShieldCheck size={12} />} All Games </Link></li>
                             <li><Link href="/about" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2">{uiDesign === 'vip' && <Zap size={12} />} Intelligence</Link></li>
                         </ul>
                     </div>

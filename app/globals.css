@@ -23,23 +23,24 @@
 }
 
 :root {
-  --background: #cbd5e1;
-  --foreground: #000000;
+  --background: #f8fafc;
+  --foreground: #0f172a;
   --card: #ffffff;
-  --card-foreground: #000000;
+  --card-foreground: #0f172a;
   --popover: #ffffff;
-  --popover-foreground: #000000;
-  --primary: #f59e0b;
-  --primary-foreground: #000000;
-  --secondary: #e2e8f0;
-  --secondary-foreground: #000000;
-  --muted: #e2e8f0;
-  --muted-foreground: #111111;
-  --accent: #cbd5e1;
-  --accent-foreground: #000000;
+  --popover-foreground: #0f172a;
+  --primary: #dda430;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #fef3c7;
+  --accent-foreground: #92400e;
   --border: #e2e8f0;
   --input: #e2e8f0;
-  --ring: #f59e0b;
+  --ring: #dda430;
+  --radius: 0.75rem;
 }
 
 .dark {
@@ -64,11 +65,7 @@
   --ring: #f59e0b;
 }
 
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  transition: background-color 0.3s, color 0.3s;
-}
+
 
 .container {
   max-width: 1200px !important;
@@ -78,15 +75,49 @@ body {
 
 @layer components {
   .btn-primary {
-    @apply px-4 py-2 bg-primary hover:opacity-90 text-primary-foreground font-bold rounded transition-all cursor-pointer;
+    @apply px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl transition-all duration-300 cursor-pointer shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-95 flex items-center justify-center gap-2;
   }
 
   .card {
-    @apply bg-card text-card-foreground border border-border rounded-xl overflow-hidden shadow-sm transition-all hover:shadow-md;
+    @apply bg-card text-card-foreground border border-border/50 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1;
+  }
+
+  .glass {
+    @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-md border border-white/20 dark:border-slate-800/20 shadow-xl;
   }
 }
 
 @layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground transition-all duration-300 min-h-screen;
+    background-image:
+      radial-gradient(at 0% 0%, rgba(221, 164, 48, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(221, 164, 48, 0.05) 0px, transparent 50%);
+  }
+
+  .dark body {
+    background-image:
+      radial-gradient(at 0% 0%, rgba(221, 164, 48, 0.03) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(221, 164, 48, 0.03) 0px, transparent 50%);
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full border-2 border-transparent bg-clip-content hover:bg-muted-foreground/40 transition-colors;
+  }
 
   button,
   [role="button"],

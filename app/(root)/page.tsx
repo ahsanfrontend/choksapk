@@ -26,7 +26,7 @@ export default async function HomePage() {
         // Fetch settings
         settings = await SiteSettings.findOne();
 
-        // Fetch Featured Games (Editor's Choice) - 4 games
+        // Fetch Featured Games (Top rated apps) - 4 games
         featuredGames = await Game.find({ isFeatured: true, isActive: true }).limit(4);
 
         // Fetch Latest Games (New Arrivals) - 8 games for a more Amazon-like feel
@@ -46,11 +46,20 @@ export default async function HomePage() {
                 uiDesign === 'modern' ? 'min-h-[400px] md:h-[550px] py-20' :
                     'min-h-[300px] md:h-[450px] py-12'
                 }`}>
+                {/* Hero Background Image */}
+                <div className="absolute inset-0 z-0">
+                    <img
+                        src="/images/hero-bg.png"
+                        alt="Hero Background"
+                        className="w-full h-full object-cover mix-blend-overlay opacity-30 dark:opacity-20 blur-sm animate-in fade-in zoom-in duration-1000"
+                    />
+                    <div className={`absolute inset-0 ${uiDesign === 'vip' ? 'bg-gradient-to-tr from-background via-background/60 to-primary/10' :
+                        uiDesign === 'modern' ? 'bg-gradient-to-b from-primary/5 via-background/80 to-background' :
+                            'bg-background/90'
+                        }`}></div>
+                </div>
+
                 <div className={`absolute inset-0 bg-grid-white/[0.02] ${uiDesign === 'classic' ? 'bg-[size:20px_20px]' : 'bg-[size:40px_40px]'}`}></div>
-                <div className={`absolute inset-0 ${uiDesign === 'vip' ? 'bg-gradient-to-tr from-background via-background/80 to-primary/5' :
-                    uiDesign === 'modern' ? 'bg-gradient-to-b from-primary/5 to-background' :
-                        'bg-background/95'
-                    }`}></div>
 
                 {/* Floating Elements - Only for VIP */}
                 {uiDesign === 'vip' && (
@@ -94,29 +103,29 @@ export default async function HomePage() {
                         <div className="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-[0.3em]">
                             <Star size={10} fill="currentColor" /> PREMIUM PICKS
                         </div>
-                        <h2 className="text-3xl md:text-5xl font-black text-foreground uppercase tracking-tighter italic leading-none">Editor's Choice</h2>
+                        <h2 className="text-3xl md:text-5xl font-black text-foreground uppercase tracking-tighter italic leading-none">Top rated apps</h2>
                     </div>
                     <Link href="/games" className="text-xs font-black text-muted-foreground hover:text-primary tracking-[0.2em] uppercase transition-colors flex items-center gap-2 border-b border-muted-foreground/20 italic pb-1">
-                        View All Assets <ArrowRight size={14} />
+                        View All  <ArrowRight size={14} />
                     </Link>
                 </div>
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
                     {featuredGames.map((game, i) => (
-                        <Link href={`/game/${game.slug}`} key={game._id.toString()} className={`group relative block bg-card rounded-[2rem] overflow-hidden border border-border hover:border-primary transition-all animate-in fade-in slide-in-from-bottom-8 duration-500`} style={{ animationDelay: `${i * 100}ms` }}>
-                            <div className="aspect-[3/4] bg-muted relative overflow-hidden">
+                        <Link href={`/game/${game.slug}`} key={game._id.toString()} className={`group relative block bg-card rounded-2xl overflow-hidden border border-border hover:border-primary transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-8`} style={{ animationDelay: `${i * 100}ms` }}>
+                            <div className="aspect-square bg-muted relative overflow-hidden">
                                 {game.thumbnail ? (
                                     <img src={game.thumbnail} alt={game.title} className="w-full h-full object-cover transition duration-700 group-hover:scale-110" />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-muted-foreground italic font-black uppercase tracking-widest text-[10px]">No Preview</div>
+                                    <div className="w-full h-full flex items-center justify-center text-muted-foreground italic font-black uppercase tracking-widest text-[8px]">No Preview</div>
                                 )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-                                    <div className="text-[10px] font-black text-white uppercase tracking-widest">ACCESS DATABASE</div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                                    <div className="text-[8px] font-black text-white uppercase tracking-widest">VIEW DETAILS</div>
                                 </div>
                             </div>
-                            <div className="p-6">
-                                <h4 className="text-foreground text-sm font-black truncate uppercase tracking-tight mb-1">{game.title}</h4>
-                                <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em]">{game.provider}</p>
+                            <div className="p-4">
+                                <h4 className="text-foreground text-[11px] font-black truncate uppercase tracking-tight mb-0.5">{game.title}</h4>
+                                <p className="text-[9px] text-primary font-bold uppercase tracking-wider">{game.provider || 'Premium App'}</p>
                             </div>
                         </Link>
                     ))}
@@ -129,17 +138,17 @@ export default async function HomePage() {
                 <div className="container mx-auto px-4">
                     <div className="flex items-center gap-4 mb-16">
                         <div className="h-0.5 w-12 bg-primary"></div>
-                        <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight italic">Newly Sanitized Protocols</h2>
+                        <h2 className="text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight italic">Latest Apps</h2>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-4">
                         {latestGames.map(game => (
-                            <Link href={`/game/${game.slug}`} key={game._id.toString()} className="group block bg-card rounded-3xl overflow-hidden border border-border hover:border-primary transition-all shadow-sm">
+                            <Link href={`/game/${game.slug}`} key={game._id.toString()} className="group block bg-card rounded-xl overflow-hidden border border-border hover:border-primary transition-all shadow-sm hover:shadow-md">
                                 <div className="aspect-square bg-muted relative overflow-hidden">
                                     {game.thumbnail && <img src={game.thumbnail} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />}
-                                    <div className="absolute top-4 right-4 bg-primary text-primary-foreground text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-widest">NEW</div>
+                                    <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-widest">NEW</div>
                                 </div>
-                                <div className="p-5">
-                                    <h4 className="text-foreground text-[11px] font-black truncate uppercase tracking-tight">{game.title}</h4>
+                                <div className="p-3">
+                                    <h4 className="text-foreground text-[10px] font-bold truncate uppercase tracking-tight">{game.title}</h4>
                                 </div>
                             </Link>
                         ))}

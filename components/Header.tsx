@@ -77,7 +77,7 @@ export default function Header() {
                 <nav className={`hidden lg:flex gap-8 items-center font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground mr-auto`}>
                     {[
                         { label: 'Home', href: '/' },
-                        { label: 'Route Vault', href: '/games', icon: <Shield size={10} className="text-primary/50" /> },
+                        { label: 'All Games ', href: '/games', icon: <Shield size={10} className="text-primary/50" /> },
                         { label: 'Blog', href: '/blog', icon: <Globe size={10} className="text-primary/50" /> },
                         { label: 'About', href: '/about', icon: <Info size={10} className="text-primary/50" /> }
                     ].map((link) => (
@@ -181,7 +181,7 @@ export default function Header() {
                             {uiDesign === 'vip' && <Globe size={14} className="text-primary/50" />} Home
                         </Link>
                         <Link href="/games" onClick={() => setMobileMenuOpen(false)} className="text-[11px] font-black text-foreground hover:text-primary uppercase tracking-[0.2em] transition-colors flex items-center gap-3">
-                            {uiDesign === 'vip' && <Shield size={14} className="text-primary/50" />} Route Vault
+                            {uiDesign === 'vip' && <Shield size={14} className="text-primary/50" />} All Games
                         </Link>
                         <Link href="/blog" onClick={() => setMobileMenuOpen(false)} className="text-[11px] font-black text-foreground hover:text-primary uppercase tracking-[0.2em] transition-colors flex items-center gap-3">
                             {uiDesign === 'vip' && <Globe size={14} className="text-primary/50" />} Blog
